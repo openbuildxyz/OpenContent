@@ -1,57 +1,55 @@
 ---
-title: Introducing the EPF Study Group
-authorURL: ""
+title: EPF 研究小组介绍
+authorURL: "Josh Davis & Mario Havel"
 originalURL: https://blog.ethereum.org/2024/02/07/epf-study-group
-translator: ""
+translator: "Ethan3"
 reviewer: ""
 ---
 
-The Ethereum Protocol Fellowship (EPF) is a program designed to reduce the barrier to entry for developers interested in working on the core protocol. As core developer (and EPF creator) Piper Merriam likes to say, the door is comically wide open. EPF helps you walk through it.
+以太坊协议奖学金（EPF）是一个旨在降低对有兴趣参与核心协议开发者的准入门槛的计划。正如核心开发者（也是 EPF 的创建者）Piper Merriam 所说的那样，门户大开，大有可为。EPF将帮助您顺利通过这扇门。
 
-<!-- more -->
+在过去的两个批次中，我们收到来自申请者和参与者最频繁的请求之一是希望提供更好的入门资料。EPF 的协调者 Josh 和 Mario 很高兴宣布启动 EPF 学习小组(EPFsg)：这是一个为期10周的教育系列，旨在作为[Ethereum协议奖学金][1]的前奏（第五批即将到来🔜）。EPFsg旨在指导和培养下一代以太坊核心开发者，并深入理解以太坊的内部机制。
 
-Over the past two cohorts, one of the most frequent request we've received from applicants & participants was for better onboarding materials. Josh and Mario, the coordinators of the EPF, are excited to announce the launch of the EPF study group (EPFsg): a 10 week education series intended as a precursor to the [Ethereum Protocol Fellowship][1] (the fifth cohort is coming 🔜). EPFsg has been designed to guide and grow the next generation of Ethereum core developers and provide a deep understanding of Ethereum's internal mechanics.
+### 消除差距
 
-### Bridging the Gap
+理解以太坊协议是一件复杂但重要的任务。该学习小组旨在通过提供一个以太坊堆栈和路线图的所有部分为重点的课程来消除这些差距。
 
-Understanding the Ethereum protocol is a complex, but important, endeavor. The study group aims to bridge the gap by offering a curriculum focused on all parts of the Ethereum stack & roadmap.
+## 以太坊协议研究项目概述
 
-## Ethereum Protocol Studies Program Overview
+- 从2月19日到4月29日的为期10周的项目
+- 开放和无权限参与
+- 兼职参与，免费
+- 为合作知识库做出贡献
+- [在这里注册EPF学习小组][2]
+- 加入 [EPF 学习小组公开讲座][3]以了解更多信息
 
--   10 week program from February 19 to April 29
--   Open and permissionless participation
--   Part time commitment and free of charge
--   Contribute to a collaborative knowledge base
--   [Register for the EPF study group here][2]
--   Join the [EPF study group Town Hall][3] to learn more
+### 项目细节
 
-### Program Details
+EPF 学习小组是一个现场网络研讨会式的项目，分为两个阶段。第一阶段每周将进行一个90分钟的课程，重点介绍以太坊底层结构的概况。在后期阶段，学生将选择研究或开发方向（或两者兼而有之）。每个方向将有自己的每周90分钟的课程，深入研究所选择的主题。
 
-The EPF study group is a live webinar-style program, consisting of two phases. The first phase, which will consist of one 90 minute class per week, will be focused on a general overview of the underlying structure of Ethereum. In the latter phase, students will choose between the research or development tracks (or both). Each track will have its own weekly 90 minute class and will be a deep dive into the chosen topic.
+在学习小组期间，学生将更好地了解以太坊的核心协议，深入研究的主题包括：
 
-During the study group, students will gain a better understanding of Ethereum's core protocol, diving into topics that include:
+- 协议设计
+- 执行和共识层架构、规范和实现
+- 测试方法和工具
+- 当前研究和路线图项目：
+  - Verkle树
+  - 分片
+  - MEV
+  - 股权证明的改进
+  - 状态和历史到期
 
--   Protocol design
--   Execution and Consensus layer architecture, specs, and implementations
--   Testing methods and tools
--   Current research and roadmap items:
-    -   Verkle trees
-    -   Sharding
-    -   MEV
-    -   Proof of stake improvements
-    -   State and history expiry
+每次在线会议将由当前核心开发人员和来自各个客户端团队和研究小组的研究人员主持，配有会前阅读材料以让您熟悉主题和术语，以及会后活动以加强和巩固您的理解。
 
-Each online session will be led by current core dev and researchers from various client teams and research groups, come with pre-meeting reading materials to get you familiar with the topic and terminology and post-meeting activities to strengthen and solidify your understanding.
+此外，学生们将共同开发一个全面的 Wiki，作为当前和未来核心开发人员的不断发展的知识库。这将为学生提供贡献开源资源的实际经验，同时获得有关文档编制和社区驱动开发的宝贵经验。
 
-Additionally, students will collaboratively develop a comprehensive wiki, serving as an evolving knowledge base for current and future core developers. This will provide students with practical experience in contributing to open source resources, while gaining invaluable experience in documentation and community-driven development.
+### 协议研究适合谁？
 
-### Who is Protocol Studies for?
+尽管该计划旨在作为 [Ethereum 协议奖学金][4]的前奏，但该学习小组适合任何有兴趣了解以太坊协议内部工作原理的人。那些对以太坊或区块链有一般知识或使用经验，以及那些具有一定计算机科学、技术或开发经验的人将从该计划中获益最大。
 
-While this program is designed to act as a precursor to the [Ethereum Protocol Fellowship][4], this study group is for anyone that is interested in learning more about the inner workings of the Ethereum Protocol. Those that have general knowledge or use of Ethereum and/or blockchains as well as those that have some computer science, technical, or developer experience will get the most from this program.
+[在此注册以太坊协议研究小组。][5]
 
-[Register for the Ethereum Protocol Fellowship study group here.][5]
-
-_\-- Josh Davis & Mario Havel | EPF Coordination_
+-- Josh Davis & Mario Havel | EPF Coordination
 
 [1]: https://blog.ethereum.org/2023/05/10/ethereum-protocol-fellowship-third-recap
 [2]: https://forms.gle/7TqmryC217EPwgqr9
