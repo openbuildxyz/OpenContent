@@ -86,223 +86,226 @@ reviewer: ""
 
 我们不是应该向Vitalik发送1个DAI吗？ `to` 难道不是应该是 Vitalik 的地址吗?
 
-Well, no. To send DAI, one must essentially craft a transaction that executes a piece of code stored in the blockchain (the fancy name for Ethereum's database) that will _update_ the recorded balances of DAI. Both the logic and related storage to execute such update is held in an immutable and public computer program stored in Ethereum's database. The DAI smart contract.
 
-Hence, you want to build a transaction that tells the contract "hey buddy, update your internal balances, taking 1 DAI out of my balance, and adding 1 DAI to Vitalik's balance". In Ethereum jargon, the phrase "hey buddy" translates to setting DAI's address in the `to` field of the transaction.
+发送 DAI 时，基本上必须构建一个交易，用来执行存储在区块链（也就是以太坊数据库的一个花哨名称）中的一段代码，从而 _更新_ DAI 余额记录。执行此类更新所需的逻辑和相关存储都保存在以太坊数据库中的一个不可篡改的、公共的计算机程序中。即 DAI 智能合约。
 
-However, the `to` field is not enough. From the information you provide in your favorite wallet's UI, the wallet fills up several other fields to build a well-formatted transaction.
+因此，你想构建一笔交易来告诉合约“嘿，朋友，更新你的内部余额吧，从我的余额中取出1个DAI，并将1个DAI添加到Vitalik的余额中”。在以太坊行话中，“嘿，朋友”这个短语被翻译为在交易的 `to` 字段中设置DAI的地址。
+
+然而， 光有`to` 字段还不足够。根据你在你最喜欢的钱包界面提供的信息，钱包会填写其他几个字段，从而构建格式完整的交易。
 
 `{     "to": "0x6b175474e89094c44da98b954eedeac495271d0f",     "amount": 0,     "chainId": 31337,     "nonce": 0,     // [...] }`
 
-It fills the `amount` field with a 0. So you're sending 1 DAI to Vitalik, and you neither use Vitalik's address nor put a `1` in the `amount` field. That's how tough life is (and we're just warming up). The `amount` field is actually included in a transaction to specify how much ETH (the native currency of Ethereum) you're sending along your transaction. Since you don't want to send ETH right now, then the wallet would correctly set that field to 0.
+它用 `0` 填充了 `amount` 字段。所以你要向 Vitalik 发送 `1` DAI，既不使用 Vitalik 的地址，也不在 `amount` 字段中放置 `1` 。这就是生活的艰辛（我们只是在热身）。 `amount` 字段也需要在交易中包含是因为要用于指定你在交易中发送了多少以太币（以太坊的原生货币）。由于你现在不想发送以太币，那么钱包会正确地将该字段设置为 `0`。
 
-As of the `chainId`, it is a field that specifies the chain where the transaction is to be executed. For Ethereum Mainnet, that is 1. However, since **I will be running this experiment on a local copy of mainnet**, I will use its chain ID: 31337. [Other chains have other identifiers][40].
+至于 `chainId` , 它是一个用于指定交易在哪条链上被执行的字段. 对于以太坊的主网, `chainId` 的值是1. 然而,  **由于我们要在主网的本地副本上进行这个实验**, 所以我将chain ID指定为了: 31337. [其他的链具有其他的ID号][40].
 
-What about the `nonce` field ? That's a number that should be increased every time you send a transaction to the network. It acts a defense mechanism to avoid replaying issues. Wallets usually set it for you. To do so, they query the network asking what's the latest nonce your account used, and then set the current transaction's nonce accordingly. In the example above it's set to 0, though in reality it will depend on the number of transactions your account has executed.
+关于 `nonce` 字段呢？这是一个数字，每次向网络发送交易时都应该增加它。它是一种用于避免重放问题的防御机制。钱包通常会为您设置它。为此，它们查询网络，查询您的账户最新使用的`nonce`值，然后相应地设置当前交易的`nonce`值。在上面的示例中，它设置为0，但实际上这将取决于您的账户已经执行的交易数量。
 
-I just said that the wallet "queries the network". What I mean is that the wallet executes a read-only call to an Ethereum node, and the node answers with the requested data. There are multiple ways to read data from an Ethereum node, depending on the node's location, and what kind of APIs it exposes.
+我刚刚说钱包“查询网络”。我的意思是钱包对以太坊节点执行只读调用，然后节点会用请求的数据进行响应。有多种方式可以从以太坊节点读取数据，这取决于节点的位置以及它所公开的API类型。
 
-Let's imagine the wallet has direct network access to an Ethereum node. More commonly, wallets interact with third-party providers (like Infura, Alchemy, QuickNode and many others). Requests to interact with the node follow a special protocol to execute remote calls. Such protocol is called [JSON-RPC][41].
+让我们想象一下，钱包已经直连到以太坊节点的网络。不过更常见的情况是，钱包是与第三方提供商（如Infura、Alchemy、QuickNode等）进行交互。与节点交互的请求遵循特殊的协议，以执行远程调用。这个协议被称为 [JSON-RPC][41]。
 
-A request for a wallet that is attempting to fetch an account's nonce would resemble something like this:
+钱包发出的尝试获取账户`nonce`的请求将类似于以下内容：
 
 `POST / HTTP/1.1 connection: keep-alive Content-Type: application/json content-length: 124  {     "jsonrpc":"2.0",     "method":"eth_getTransactionCount",     "params":["0x6fC27A75d76d8563840691DDE7a947d7f3F179ba","latest"],     "id":6 } --- HTTP/1.1 200 OK Content-Type: application/json Content-Length: 42  {"jsonrpc":"2.0","id":6,"result":"0x0"}`
 
-Where `0x6fC27A75d76d8563840691DDE7a947d7f3F179ba` would be the sender's account. From the response you can see that its nonce is 0.
+其中，发送方的账户应该是 `0x6fC27A75d76d8563840691DDE7a947d7f3F179ba`。 从响应的数据中可以看到它的nonce值是0
 
-Wallets fetch data using network requests (in this case, via HTTP) to hit JSON-RPC endpoints exposed by nodes. Above I included just one, but in practice a wallet can query whatever data they need to build a transaction. Don't be surprised if in real-life cases you notice more network requests to lookup other stuff. For instance, following is a snippet of Metamask traffic hitting a local test node in a couple of minutes:
+钱包通过网络请求获取数据（在本例中，通过HTTP），以访问节点公开的JSON-RPC端点。上面我只写了一个请求，但实际上，钱包可以查询它们需要构建交易的任何数据。如果在现实案例中注意到更多的网络请求来查找其他内容，不要感到惊讶。例如，以下是几分钟内Metamask流量访问本地测试节点的片段：
 
-![Wireshark snapshot of Metamak traffic in local network](https://notonlyowner.com/images/metamask-traffic.png)
+![在本地网络中Metamask流量的Wireshark截图快照](https://notonlyowner.com/images/metamask-traffic.png)
 
-### The transaction's data field
+### 交易的数据字段
 
-DAI is a smart contract. Its main logic is implemented at address `0x6b175474e89094c44da98b954eedeac495271d0f` in Ethereum mainnet.
+DAI是一个智能合约. 它的核心逻辑在以太坊主网`0x6b175474e89094c44da98b954eedeac495271d0f`这个地址上实现.
 
-More specifically, DAI is an ERC20-compliant fungible token - quite a special type of contract. This means that _at least_ DAI should implement the interface detailed in the [ERC20 specification][42]. In (somewhat stretched) web2 jargon, DAI is an immutable open-source web service running on Ethereum. Given it follows the ERC20 spec, it's possible to know in advance (without necessarily looking at the source code) the exact exposed endpoints to interact with it.
+更具体地说，DAI是符合ERC20标准的同质化代币——一种非常特殊的合约类型。这意味着至少DAI应该实现[ERC20 标准][42]中详细描述的接口。在（有些牵强的）web2行话中，DAI是在以太坊上运行的不可篡改的开源网络服务。鉴于它遵循ERC20规范，可以预先知道（而不一定要查看源代码）与之交互的具体公开的端点。
 
-Short side note: not all ERC20 tokens are created equal. Implementing a certain interface (which facilitates interactions and integrations) certainly does not guarantee behavior. Still, for this exercise we can safely assume that DAI is quite a standard ERC20 token in terms of behavior.
+短小的说明：并非所有的ERC20代币都是相同的。实现特定接口（用于促进交互和集成）并不一定保证具体的行为。尽管如此，对于这个练习，我们可以安全地假设DAI在行为上是一个相当标准的ERC20代币。
 
-There are a bunch of functions in the DAI smart contract (source code available [here][43]), many of them directly taken from the ERC20 spec. Of particular interest is [the external `transfer` function][44].
+DAI智能合约中有许多功能（源代码可在[此处][43]找到），其中许多直接取自ERC20规范。特别引人关注的是[只能被合约外部调用的 `transfer` 函数][44。
 
 `contract Dai is LibNote {     ...     function transfer(address dst, uint wad) external returns (bool) {         ...     } }`
 
-This function allows anyone holding DAI tokens to transfer some of them to another Ethereum account. Its signature is `transfer(address,uint256)`. Where the first parameter is the address of the receiver account, and the second an unsigned integer representing the amount of tokens to be transferred.
+该函数允许持有 DAI 代币的任何人将其中一些代币转移到另一个以太坊账户。其声明是 `transfer(address,uint256)` 。第一个参数是接收账户的地址，第二个参数是表示要转移的代币数量的无符号整数。
 
-For now let's not focus on the specifics of the function's behavior. Just trust me when I tell you that in its happy path, the function reduces the sender's balance by the passed amount, and then increases the receiver's accordingly.
+暂时不要专注于函数行为的具体细节。相信我，当函数按照预期运行时，它会减少发送者的余额，并相应地增加接收者的余额。
 
-This is important because when building a transaction to interact with a smart contract, one should know which function of the contract is to be executed. And what parameters are to be passed. It's like if in web2 you wanted to send a POST request to a web API. You'd most likely need to specify the exact URL with its parameters in the request. This is the same. We want to transfer 1 DAI, so we must know how to specify in a transaction that it is supposed to execute the `transfer` function on the DAI smart contract.
+这很重要，因为在构建与智能合约交互的交易时，应该知道要执行合约的哪个函数，以及要传递哪些参数。就像在web2中，如果你想向web API发送POST请求一样。您很可能需要在请求中指定带有参数的准确的URL。这是一样的。我们想要转移1个DAI，所以我们必须知道如何在交易中指定要去执行DAI智能合约上的 `transfer` 函数。
 
-Luckily, it's SO straightforward and intuitive.
+幸运的是，这是非常直接和直观的。
 
-Joking. It's not. This is what you must include in your transaction to send 1 DAI to Vitalik (remember, address `0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045`):
+开玩笑的。不是的。这是你必须包括在发送1个DAI给Vitalik这个交易中内容（记住，地址是 `0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045` ）。
 
 `{     // [...]     "data": "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000" }`
 
-Let me explain.
+让我解释一下。
 
-Aiming to ease integrations and have a standardize way to interact with smart contracts, the Ethereum ecosystem has (kind of) settled into adopting what's called the "Contract ABI specification" (ABI stands for Application Binary Interface). In common use cases, and I stress, IN COMMON USE CASES, in order to execute a smart contract function you must first encode the call following the [Contract ABI specification][45]. More advanced use cases may not follow this spec, but we're _definitely_ not going down that rabbit hole. Suffice to say that regular smart contracts programmed with [Solidity][46], such as DAI, usually follow the Contract ABI spec.
+为了简化集成过程并制定一种标准化的方式与智能合约进行交互，以太坊生态系统已经（一定程度上）开始采用所谓的“合约ABI规范”（ABI代表应用二进制接口）。在常见的使用情况下，我强调，是在常见的使用情况下，为了执行智能合约函数，您必须首先按照[合约ABI规范][45]对函数调用进行编码。更高阶的使用情况可能不遵循这个规范，但我们 _绝对_ 不会深入探讨这个问题。可以说，通常使用[Solidity][46]编程的智能合约，比如DAI，通常遵循合约ABI规范。
 
-What you can see above are the resulting bytes of ABI-encoding a call to transfer 1 DAI to address `0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045` with DAI's `transfer(address,uint256)` function.
 
-There are a number of tools out there to ABI-encode stuff, and in some way or another most wallets are implementing ABI-encoding to interact with contracts. For the sake of the example, we can just verify that the above sequence of bytes is correct using a command-line utility called [cast][47], which is able to ABI-encode the call with the specific arguments:
+你在上面看到的是对将1DAI转账到地址 `0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045` 并使用DAI的 `transfer(address,uint256)` 函数的调用进行ABI编码后得到的字节 。
+
+有许多工具可以对ABI进行编码，大多数钱包都在一定程度上实现了ABI编码以与合约进行交互。为了举例说明，我们可以使用一个名为[cast][47]的命令行工具来验证上述字节序列是否正确，该程序能够使用指定参数对调用进行ABI编码：
 
 `$ cast calldata "transfer(address,uint256)" 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045 1000000000000000000  0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000`
 
-Anything bugging you ? What's wrong ?
+有什么困扰你的吗？怎么了？
 
-Ooooh, sorry, yeah. That 1000000000000000000. Honestly I would _really_ love to have a more robust argument for you here. The thing is: lots of ERC20 tokens are represented with 18 decimals. Such as DAI. Yet we can only use unsigned integers. So 1 DAI is actually stored as 1 \* 10^18 - which is 1000000000000000000. Deal with it.
+抱歉，是的。那个1000000000000000000。老实说，我 _真的_ 很想为你提供更有力的论据。解释是：许多ERC20代币使用18位小数进行表示，比如DAI。然而，我们只能使用无符号整数。因此，1个DAI实际上存储为1 \* 10^18 - 也就是1000000000000000000。就这样吧。
 
-We have a beautiful ABI-encoded sequence of bytes to be included in the `data` field of the transaction. Which by now looks like:
+我们有一个美丽的ABI编码的字节序列，它需要被包含在交易的 `data` 字段中。到目前为止我们构建的交易看起来是：
 
 `{     "to": "0x6b175474e89094c44da98b954eedeac495271d0f",     "amount": 0,     "chainId": 31337,     "nonce": 0,     "data": "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000" }`
 
-We will revisit the contents of this `data` field once we get to the actual execution of the transaction.
+一旦我们开始实际执行交易，我们将重新审视这个 data 字段的内容。
 
-### Gas wizardry
+### Gas的魔法
 
-Next step is deciding how much to pay for the transaction. Because remember that all transactions must pay a fee to network of nodes that takes the time and resources to execute and validate them.
+下一个步骤是，要确定为交易支付多少费用。请记住，所有交易都必须向网络中的节点支付费用，因为这些节点需要时间和资源来执行和验证它们。
 
-The cost of executing a transaction is paid in ETH. And the final amount of ETH will depend on how much net [gas][48] your transaction consumes (that is, how computationally expensive it is), how much you're willing to pay for each gas unit spent, and how much the network is willing to accept at a minimum.
+执行交易的成本是以以太币支付的。最终的以太币数量将取决于你的交易消耗了多少[gas][48]（即计算成本有多高）、你愿意为每个gas单位花销支付多少以及网络愿意接受的最低金额是多少。
 
-From a user perspective, bottomline _usually_ is that the more one pays, the faster transactions are included. So if you want to pay Vitalik 1 DAI in the next block, you'll probably need to set a higher fee than if you're willing to wait a couple of minutes (or longer, sometimes _way_ longer), until gas is cheaper.
+从用户的角度来看，底线 _通常_ 是支付的金额越多，交易被打包在区块里的速度就越快。因此，如果你想在下一个区块中支付 Vitalik 1 个 DAI，你可能需要设置比愿意等待几分钟（或更长时间，有时 _甚至_ 更长）直到 gas 价格更便宜时更高的费用。
 
-Different wallets may take different approaches to deciding how much to pay for gas. I'm not aware of a single bullet-proof mechanism used by everyone. Strategies to determine the right fees may involve querying gas-related information from nodes (such as the minimum base fee accepted by the network).
+不同的钱包可能会采取不同的方式来决定支付多少gas费。我还不知道一个确保所有人使用时都的万无一失的机制。确定正确费用的策略可能涉及从节点查询与gas相关的信息（例如网络接受的最低基本费用）。
 
-For example, in the following requests you can see the Metamask browser extension sending a request to a local test node for gas fee data when building a transaction:
+例如，在以下请求中，你可以看到Metamask浏览器扩展在构建交易时向本地测试节点发送请求以获取gas费数据：
 
-![Metamask traffic querying a node for gas-related data](https://notonlyowner.com/images/metamask-gas-traffic.png)
+![向节点查询gas有关数据时的Metamask网络流量](https://notonlyowner.com/images/metamask-gas-traffic.png)
 
-And the simplified request-response look like:
+简化后的请求——相应如下：
 
 `POST / HTTP/1.1 Content-Type: application/json Content-Length: 99  {     "id":3951089899794639,     "jsonrpc":"2.0",     "method":"eth_feeHistory",     "params":["0x1","0x1",[10,20,30]] } --- HTTP/1.1 200 OK Content-Type: application/json Content-Length: 190  {     "jsonrpc":"2.0",     "id":3951089899794639,     "result":{         "oldestBlock":"0x1",         "baseFeePerGas":["0x342770c0","0x2da4d8cd"],         "gasUsedRatio":[0.0007],         "reward":[["0x59682f00","0x59682f00","0x59682f00"]]     } }`
 
-The `eth_feeHistory` endpoint is exposed by some nodes to allow querying transaction fee data. If you're curious, read [here][49] or play with it [here][50], or see the spec [here][51].
+其中，`eth_feeHistory` 端点由一些允许查询交易费数据节点公开。如果你感兴趣，可以在[这里][49]阅读或尝试操作[这个][50]，或者在[这里][51]查看规范。
 
-Popular wallets also use more sophisticated off-chain services to fetch gas price estimations and suggest sensible values to their users. Here's one example of a wallet hitting a public endpoint of a web service, and receiving a bunch of useful gas-related data:
+热门钱包还使用更复杂的链下服务来获取gas价格估算值从而向用户建议合理的数值。以下是一个钱包访问网络服务的公共端点，并接收大量有用的与gas相关的数据的示例：
 
-![Wireshark traffic including eth_feeHistory request](https://notonlyowner.com/images/gas-data-requests.png)
+![Wireshark中包括以太坊历史gas费查询请求的网络流量](https://notonlyowner.com/images/gas-data-requests.png)
 
-Take a look at a snippet of the response:
+让我们看一下响应的片段：
 
-![Wireshark traffic including eth_feeHistory response](https://notonlyowner.com/images/gas-data-response.png)
+![Wireshark中包括以太坊历史gas费查询响应的网络流量](https://notonlyowner.com/images/gas-data-response.png)
 
-Cool, right?
+这很酷，对吧？
 
-Anyway, hopefully you're getting familiar with the idea that setting the gas fee prices is not straightforward, and it is a fundamental step for building a successful transaction. Even if all you want to do is send 1 DAI. [Here][52] is an interesting introductory guide to dig deeper into some of the mechanisms involved to set more accurate fees in transactions.
+希望你已经开始逐渐了解设定gas价格并不是一件简单的事情，并且这是构建成功交易的基本步骤。即使你只是想发送1个DAI。[这][52]是一个有趣的入门指南，可以深入了解一些涉及更准确地设置交易费用的机制。
 
-After some initial context, let's go back to the actual transaction now. There are three gas-related fields that need to be set:
+在了解基本背景之后，现在让我们回到实际的交易。有三个与gas相关的字段需要设置：
 
 `{     "maxPriorityFeePerGas": ...,     "maxFeePerGas": ...,     "gasLimit": ..., }`
 
-Wallets will use some of the mentioned mechanisms to fill the first two fields for you. Interestingly, whenever a wallet UI lets you choose between some version of "slow", "regular" or "fast" transactions, it's actually trying to decide on what values are the most appropriate for those exact parameters. Now you can better understand the contents of the JSON-formatted response received by a wallet that I showed you a couple of paragraphs back.
+钱包将使用前面提到的机制来为你填充好前两个字段。有趣的是，每当钱包用户界面让您在“慢速”、“常规”或“快速”交易版本之间进行选择时，实际上是在尝试决定哪些数值最适合这些参数。现在你可以更好地理解我之前展示给你的钱包收到的JSON格式响应的内容。
 
-To determine the third field's value, the gas limit, there's a handy mechanism that wallets may use to simulate a transaction before it is really submitted. It allows them to closely estimate how much gas a transaction would consume, and therefore set a reasonable gas limit. On top of providing you with an estimate on the final USD cost of the transaction.
+要确定第三个字段的值，即gas限制，钱包用一个方便的机制来模拟交易在实际提交之前会消耗多少gas。这使它们能够近似估计交易将消耗多少gas，从而设置合理的燃气限制，在除了为您提供交易的最终美元成本估算之外。
 
-Why not just set an absurdly large gas limit ? To defend your funds, of course. Smart contracts may have arbitrary logic, you being the one paying for its execution. By choosing a sensible gas limit right from the start in your transaction, you protect yourself against ugly scenarios that may drain all your account's ETH funds in gas fees.
+为什么不设置一个无限大的gas限制呢？当然是为了保护你的资金。智能合约可能具有任意逻辑，而你是为其执行付费的人。通过在交易开始时选择合理的gas限制，您可以防止不良情况发生，这些不良情况可能会导致所有您账户中的以太币资金被gas费耗尽。
 
-Gas estimations can be done using a node's endpoint called `eth_estimateGas`. Before sending 1 DAI, a wallet can leverage this mechanism to simulate your transaction, and determine what's the right gas limit for your DAI transfer. This is what a request-response from a wallet might look like.
+Gas 估算可以使用节点的 `eth_estimateGas` 端点进行。在发送1 DAI之前，钱包可以利用这种机制来模拟你的交易，并确定 DAI 转账的正确 gas 限制。这是钱包的请求——响应看起来的样子。
 
 `POST / HTTP/1.1 Content-Type: application/json  {     "id":2697097754525,     "jsonrpc":"2.0",     "method":"eth_estimateGas",     "params":[         {             "from":"0x6fC27A75d76d8563840691DDE7a947d7f3F179ba",             "value":"0x0",             "data":"0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000",             "to":"0x6b175474e89094c44da98b954eedeac495271d0f"         }     ] } --- HTTP/1.1 200 OK Content-Type: application/json  {"jsonrpc":"2.0","id":2697097754525,"result":"0x8792"}`
 
-In the response you can see that the transfer would take approximately 34706 gas units.
+在响应中，您可以看到转账大约需要34706个单元的gas。
 
-Let's incorporate this information to the transaction payload:
+让我们将这些信息合并到交易有效负载中：
 
 `{     "to": "0x6b175474e89094c44da98b954eedeac495271d0f",     "amount": 0,     "chainId": 31337,     "nonce": 0,     "data": "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000",     "maxPriorityFeePerGas": 2000000000,     "maxFeePerGas": 120000000000,     "gasLimit": 40000 }`
 
-Remember that the `maxPriorityFeePerGas` and `maxFeePerGas` will ultimately depend on the network conditions at the moment of sending the transaction. Above I'm just setting somewhat arbitrary values for the sake of this example. As of the value set for the gas limit, I just incremented the estimate a bit to fall on the safe side.
+请记住， `maxPriorityFeePerGas` 和 `maxFeePerGas` 最终取决于发送交易时的网络条件。上面我只是为了举例而设置了一些相对随意的值。至于gas限制的设定值，我只是在估算值上稍微增加了一些以确保安全。
 
-### Access list and transaction type
+### 访问控制列表和交易类型
 
-Let's briefly comment on two additional fields that are set in your transaction.
+让我们简要讨论一下你的交易中需要设置的另外两个字段。
 
-First, the `accessList` field. Advanced use cases or edge scenarios may require the transaction to specify in advance the account addresses and contracts' storage slots to be accessed, thus making it somewhat cheaper.
+首先是 `accessList` 字段。高级使用场景或边界情况可能需要事先指定交易要访问的账户地址和合约存储槽，从而使其成本略微降低。
 
-However, it may not be straightforward to build such list in advance, and currently the gas savings may not be not so significant. Particularly for simple transactions like sending 1 DAI. Therefore, we can just set it to an empty list. Although remember that it does exist [for a reason][53], and it may become more relevant in the future.
+然而，事先建立这样的清单可能并不那么简单，目前的gas节省可能并不那么显著。特别是对于发送1 DAI这样的简单交易。因此，我们可以将其设置为空列表。但要记住，它确实是有其[存在的理由][53]，而且在未来可能变得更加重要。
 
-Second, [the transaction type][54]. It is specified in the `type` field. The type is an indicator of what's inside the transaction. Our will be a type 2 transaction - because its following the format specified [here][55].
+第二，[交易的类型][54]。它在 `type` 字段中指定。类型用来指示是交易内部的内容的。我们的例子属于类型2交易，因为它遵循[这里][55]指定的格式。
+
 
 `{     "to": "0x6b175474e89094c44da98b954eedeac495271d0f",     "amount": 0,     "chainId": 31337,     "nonce": 0,     "data": "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000",     "maxPriorityFeePerGas": 2000000000,     "maxFeePerGas": 120000000000,     "gasLimit": 40000,     "accessList": [],     "type": 2 }`
 
-### Signing the transaction
+### 对交易签名
 
-How can nodes know that it is _your_ account, and not somebody else's, who is sending a transaction ?
+节点如何知道是 _您的_ 账户而不是别人的账户发送的交易？
 
-We've come to the critical step of building a valid transaction: signing it.
+我们来到了构建有效交易的关键步骤：对交易签名。
 
-Once a wallet has collected enough information to build the transaction, and you hit SEND, it will digitally sign your transaction. How ? Using your account's private key (that your wallet has access to), and a cryptographic algorithm involving curvy shapes called [ECDSA][56].
+一旦钱包收集到足够的信息来构建交易，并且你点击了发送，它将对你的交易进行数字签名。具体过程？使用你账户的私钥（你的钱包可以访问）和一个涉及椭圆曲线的加密算法，称为 [ECDSA][56]。
 
-For the curious, what's actually being signed is the `keccak256` hash of the concatenation between the transaction's type and the [RLP encoded][57] content of the transaction.
+满足一下你的好奇心，实际上被签名的是将交易类型和交易的 [RLP 编码][57] 的拼接起来后取`keccak256` 哈希
 
 `keccak256(0x02 || rlp([chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gasLimit, to, amount, data, accessList]))`
 
-You shouldn't be so knowledgeable in cryptography to understand this though. Put simply, this process seals the transaction. It makes it tamper-proof by putting a smart-ass stamp on it that only your private key could have produced. And from now on anyone with access to that signed transaction (for example, Ethereum nodes) can cryptographically verify that it was your account that produced it.
+你不必对密码学有深入了解才能理解这这一部分。简单来说，这个过程封装了交易。它通过在交易上加上一个只有你的私钥才能产生的智能印章，使其变得不可篡改。从现在开始，任何可以访问该签名交易的人（例如，以太坊节点）都可用密码学验证这个交易是你的账户产生的。
 
-Just in case: signing is _not_ encrypting. Your transactions are always in plaintext. Once they go public, anyone can make sense out of their contents.
+顺便说一下：签名 _并不等同于_ 加密。你的交易始终以明文形式存在。一旦公开，任何人都可以看到其内容。
 
-The process of signing the transaction produces, no surprise, a signature. In practice: a bunch of weird unreadable values. These travel along the transaction, and you'll usually find them referred to as `v`, `r` and `s`. If you want to dig deeper on what these actually represent, and their importance to recover your account's address, the Internet is your friend.
+对交易签名的过程毫无意外地产生了一个签名。实际上，这是一堆看起来奇怪且难以阅读的数值。这些数值随交易一起被传播，通常被称为 `v`、`r` 和 `s`。如果你想更深入地了解这些实际代表什么，以及它们在恢复你的账户地址方面的重要性，互联网是你的好帮手。
 
-You can get a better idea on what signing looks like when implemented by checking out the [@ethereumjs/tx][58] package. Also using the [ethers][59] package for some utilities. As an extremely simplified example, signing the transaction to send 1 DAI could look like this:
+你可以通过查看 [@ethereumjs/tx][58] 这个软件包来更好地了解签名的实现方式。还可以使用 [ethers][59] 这样的工具进行一些实践操作。作为一个极其简化的例子，发送 1 DAI 的交易签名可能如下所示：
 
 `const { FeeMarketEIP1559Transaction } = require("@ethereumjs/tx");  const txData = {     to: "0x6b175474e89094c44da98b954eedeac495271d0f",     amount: 0,     chainId: 31337,     nonce: 0,     data: "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000",     maxPriorityFeePerGas: ethers.utils.parseUnits('2', 'gwei').toNumber(),     maxFeePerGas: ethers.utils.parseUnits('120', 'gwei').toNumber(),     gasLimit: 40000,     accessList: [],     type: 2, };  const tx = FeeMarketEIP1559Transaction.fromTxData(txData); const signedTx = tx.sign(Buffer.from(process.env.PRIVATE_KEY, 'hex'));  console.log(signedTx.v.toString('hex')); // 1  console.log(signedTx.r.toString('hex')); // 57d733933b12238a2aeb0069b67c6bc58ca8eb6827547274b3bcf4efdad620a  console.log(signedTx.s.toString('hex')); // e49937ec81db89ce70ebec5e51b839c0949234d8aad8f8b55a877bd78cc293`
 
-The resulting object would look like:
+结果对象将类似于：
 
 `{     "to": "0x6b175474e89094c44da98b954eedeac495271d0f",     "amount": 0,     "chainId": 31337,     "nonce": 0,     "data": "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000",     "maxPriorityFeePerGas": 2000000000,     "maxFeePerGas": 120000000000,     "gasLimit": 40000,     "accessList": [],     "type": 2,     "v": 1,     "r": "57d733933b12238a2aeb0069b67c6bc58ca8eb6827547274b3bcf4efdad620a",     "s": "e49937ec81db89ce70ebec5e51b839c0949234d8aad8f8b55a877bd78cc293", }`
 
-### Serialization
+### 序列化
 
-The next step is _serializing_ the signed transaction. That means encoding the pretty object above into a raw sequence of bytes, such that it can be sent to the Ethereum network and consumed by the receiving node.
+下一步是对已经签名的交易进行 _序列化_ 。也就是要将上面的美观易读的对象编码成原始字节序列，以便它可以发送到以太坊网络并被接收节点使用。
 
-The encoding method chosen by Ethereum is called [RLP][60]. The way the transaction is encoded is as follows:
+以太坊选择的编码方法称为 [RLP][60]。交易的编码方式如下：
 
 `0x02 || rlp([chainId, nonce, maxPriorityFeePerGas, maxFeePerGas, gasLimit, to, value, data, accessList, v, r, s])`
 
-Where the initial byte is the transaction type.
+其中，第一个字节是交易类型。
 
-Building upon the previous code snippet, you can actually see the serialized transaction adding this:
+在前面的代码片段基础上，你实际上可以看到对序列化后的交易如下：
 
 `console.log(signedTx.serialize().toString('hex')); // 02f8b1827a69808477359400851bf08eb000829c40946b175474e89094c44da98b954eedeac495271d0f80b844a9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000c001a0057d733933b12238a2aeb0069b67c6bc58ca8eb6827547274b3bcf4efdad620a9fe49937ec81db89ce70ebec5e51b839c0949234d8aad8f8b55a877bd78cc293`
 
-That is the actual payload to send 1 DAI to Vitalik on my local copy of the Ethereum mainnet.
+这就是发送 1 DAI 给我本地的以太坊主网副本上的 Vitalik 的实际有效载荷。
 
-### Submitting the transaction
+### 提交交易
 
-Once built, signed and serialized, the transaction must be sent to an Ethereum node.
+交易被构建好、签名完毕并序列化之后，必须被发送到一个以太坊节点。
 
-There's a handy JSON-RPC endpoint that nodes may expose where they can receive such requests. It's called `eth_sendRawTransaction`. Here's the network traffic of a wallet employing it upon submitting the transaction:
+节点可能公开了一个便于接收这类请求的 JSON-RPC 端点。这个请求是 `eth_sendRawTransaction`。这是一个钱包在提交交易时的网络流量：
 
-![Wireshark traffic sending a raw transaction using the eth_sendRawTransaction method](https://notonlyowner.com/images/send-raw-transaction.png)
+![使用 eth_sendRawTransaction 方法发送原始交易的 Wireshark 流量](https://notonlyowner.com/images/send-raw-transaction.png)
 
-The summarized request-response looks like:
+请求-响应的总结如下：
 
 `POST / HTTP/1.1 Content-Type: application/json Content-Length: 446  {     "id":4264244517200,     "jsonrpc":"2.0",     "method":"eth_sendRawTransaction",     "params":["0x02f8b1827a69808477359400851bf08eb000829c40946b175474e89094c44da98b954eedeac495271d0f80b844a9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000c001a0057d733933b12238a2aeb0069b67c6bc58ca8eb6827547274b3bcf4efdad620a9fe49937ec81db89ce70ebec5e51b839c0949234d8aad8f8b55a877bd78cc293"] } --- HTTP/1.1 200 OK Content-Type: application/json Content-Length: 114  {     "jsonrpc":"2.0",     "id":4264244517200,     "result":"0xbf77c4a9590389b0189494aeb2b2d68dc5926a5e20430fb5bc3c610b59db3fb5" }`
 
-The result included in the response contains the transaction's hash: `bf77c4a9590389b0189494aeb2b2d68dc5926a5e20430fb5bc3c610b59db3fb5`. This 32-bytes-long sequence of hex characters is the unique identifier for the submitted transaction.
+响应结果包含交易的哈希：`bf77c4a9590389b0189494aeb2b2d68dc5926a5e20430fb5bc3c610b59db3fb5`。这个由32个十六进制字符组成的序列是提交的交易的唯一标识符。
 
-## Reception
+## 接收交易
 
-How should we go about figuring out what happens when an Ethereum node receives the serialized signed transaction ?
+我们应该如何去弄清楚以太坊节点在接收序列化的已签名交易时会发生什么？
 
-Some might ask on Twitter, others may read some Medium articles. Other may even read documentation. [Shame!][61]
+有些人可能会在 Twitter 上询问，其他人可能会阅读一些 Medium 文章。还有人可能会阅读文档。[真可惜！][61]
 
-There's only one place to find the truth: at the source. Let's use [go-ethereum v1.10.18][62] (a.k.a. Geth), a popular implementation of an Ethereum node (an "execution client" once Ethereum moves to Proof-of-Stake). From now on, I'll be including links to Geth's source code for you to follow along.
+只有一个地方可以找到真相：就在源头。让我们使用 [go-ethereum v1.10.18][62]（即 Geth），这是一个热门的以太坊节点实现（以太坊转向PoS后称为“执行客户端”）。从现在开始，我会在合适位置插入指向 Geth 源代码的链接，供你跟进。
 
-Upon receiving the JSON-RPC call on its `eth_sendRawTransaction` [endpoint][63], the node needs to make sense out of the serialized transaction included in the request's body. So [it begins with deserializing the transaction][64]. From now on the node will have easier access to the transaction's fields.
+在[端点][63] 收到对`eth_sendRawTransaction` 的JSON-RPC 调用后，节点需要弄清楚请求正文中包含的序列化交易。因此 [它从反序列化交易开始][64]。从现在开始，节点将更容易访问到交易的字段。
 
-At this point the node already starts validating the transaction. [First][65], ensuring that the transaction's fee (i.e., price \* gas limit) does not go above the maximum that the node is willing to accept (apparently, [by default this is 1 ether][66]). And [then][67], ensuring that the transaction is replay-protected (following [EIP 155][68] - remember the `chainID` field we set in the transaction?), or that the node is willing to accept unprotected transactions.
+此时，节点已经开始验证交易。[首先][65]，确保交易的手续费（即价格 * gas限制）不超过节点愿意接受的最大值（显然，[默认情况下这是 1 以太币][66]）。[接着][67]，确保交易具有重放保护（遵循 [EIP 155][68] - 记得我们在交易中设置的 `chainID` 字段？），或者节点愿意接受未受保护的交易。
 
-The next steps consists of [sending][69] [the][70] [transaction][71] [to][72] the [transaction pool][73] (a.k.a. the mempool). Put simply, this pool represents the set of transactions that the node is aware of at a specific moment. As far the node knows, these haven't been included in the blockchain yet.
+接下来的步骤包括 [发送][69] [交][70] [易][71] [到][72] [交易池][73]（即内存池）。简单来说，这个池代表了节点在特定时刻所知道的交易集合。就节点所知，这些交易都还没上链。
 
-Before _really_ including the transaction in the pool, the node [checks][74] that it doesn't already know about it. And that its ECDSA signature is [valid][75]. Discarding the transaction otherwise.
+在 _真正_ 将交易加入到交易池之前，节点会[检查][74]自己是否已经知道这个交易，以及这个交易的 ECDSA 签名是否 [有效][75]。否则将丢弃交易。
 
-Then [the heavy mempool stuff][76] begins. As you may notice, there's lots of non-trivial logic to ensure that the transaction pool is all happy and healthy.
+然后开始[处理繁重的内存池工作][76]。正如你可能注意到的，有很多意义非凡的逻辑以确保交易池保持快乐和健康。
 
-There's quite a number of important [validations][77] performed here. Such as the gas limit being [below the block gas limit][78], or the transaction's size [not exceeding][79] the [maximum allowed][80], or the nonce being [the expected one][81], or the sender having [enough funds][82] to cover potential costs (i.e., value + gas limit \* price), and more.
+这里进行了相当多的重要 [验证][77]。例如gas限制 [低于区块gas限制][78]，或交易的大小 [不超过][79] [允许的最大值][80]，或 nonce 是 [预期的][81]，或发送者有 [足够的资金][82] 来支付潜在成本（即价值 + gas限制 * 价格），等等。
 
-While we could go on, we're not here to become mempool experts. Even if we wanted to, we'd need to consider that, as long as they follow the network consensus rules, each node operator may take different approaches to mempool management. That means performing special validations or following custom transaction prioritization rules. In the interest of just sending 1 DAI, we can treat the mempool as a mere set of transactions eagerly waiting to be picked up and be included in a block.
+虽然我们可以继续，但我们不在这里成为内存池专家。即使我们想成为，我们也需要考虑到，只要他们遵循网络共识规则，每个节点操作者可能会采取不同的内存池管理方法，他们可能会执行特殊验证或遵循自定义交易优先级规则。在本案例中，我们只是要发送 1 DAI，我们可以将内存池视为一组急切等待被挑选并包含在区块中的交易。
 
-After successfully adding the transaction to the pool (and doing internal [logging][83] stuff), the node [returns the transaction hash][84]. Exactly what we saw being returned in the JSON-RPC request-response earlier 😎
+成功将交易入池 (并进行内部 [日志][83] 记录)之后,，节点会 [返回交易哈希值][84]. 这正是我们之前在JSON-RPC的 请求——响应 中看到的返回结果 😎
 
 ### Inspecting the mempool
 
