@@ -2,11 +2,11 @@
 title: What happens when you send 1 DAI
 authorURL: ""
 originalURL: https://www.notonlyowner.com/learn/what-happens-when-you-send-one-dai
-translator: ""
+translator: "fengjy73"
 reviewer: ""
 ---
 
-# What happens when you send 1 DAI
+# 当你发送1DAI的时候会发生什么
 
 <!-- more -->
 
@@ -14,77 +14,77 @@ reviewer: ""
 
 ![article cover](https://notonlyowner.com/images/what-happens-dai-cover-intro.png)
 
-You have 1 [DAI][2].
+你拥有1个 [DAI][2].
 
-Using a wallet's UI (like [Metamask][3]), you click enough buttons and fill enough text inputs to say that you're sending 1 DAI to `0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045` (that's vitalik.eth).
+使用钱包界面 (例如 [Metamask][3]), 你点击足够多的按钮并输入足够多的文本来确认您要向`0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045` (即vitalik.eth)这个地址发送 1 DAI。
 
-And hit send.
+然后点击发送
 
-After some time the wallet says the transaction's been confirmed. All of sudden, Vitalik is now 1 DAI richer. WTF just happened?
+一段时间后，钱包显示交易已确认。突然间，Vitalik 多了 1 个 DAI。到底发生了什么？
 
-Let's rewind. And replay in slow motion.
+让我们倒带。然后以慢动作重播这个过程。
 
-Ready?
-
----
-
-## Index
-
-1.  [Building the transaction][4]
-    -   [The transaction's data field][5]
-    -   [Gas wizardry][6]
-    -   [Access list and transaction type][7]
-    -   [Signing the transaction][8]
-    -   [Serialization][9]
-    -   [Submitting the transaction][10]
-2.  [Reception][11]
-    -   [Inspecting the mempool][12]
-3.  [Propagation][13]
-4.  [Work preparation and transaction inclusion][14]
-5.  [Execution][15]
-    -   [Preparation (part 1)][16]
-    -   [Preparation (part 2)][17]
-    -   [The call][18]
-    -   [The interpreter (part 1)][19]
-    -   [Solidity execution][20]
-    -   [EVM execution][21]
-        -   [Free memory pointer and call's value][22]
-        -   [Validating calldata (part 1)][23]
-        -   [Function dispatcher][24]
-        -   [Validating calldata (part 2)][25]
-        -   [Reading parameters][26]
-        -   [The transfer function][27]
-        -   [The transferFrom function][28]
-        -   [Logging][29]
-        -   [Returning][30]
-    -   [The interpreter (part 2)][31]
-    -   [Gas refunds and payments][32]
-    -   [Building the transaction receipt][33]
-6.  [Sealing the block][34]
-7.  [Broadcasting the block][35]
-8.  [Verifying the block][36]
-9.  [Retrieving the transaction][37]
-10.  [Afterword][38]
+准备好了吗?
 
 ---
 
-## Building the transaction
+## 目录
 
-[Wallets][39] are pieces of software that facilitate sending _transactions_ to the Ethereum network.
+1.  [构建交易][4]
+    -   [交易的数据字段][5]
+    -   [Gas的魔法][6]
+    -   [访问控制列表和交易类型][7]
+    -   [对交易签名][8]
+    -   [序列化][9]
+    -   [提交交易][10]
+2.  [接收交易][11]
+    -   [检查内存池][12]
+3.  [传播][13]
+4.  [准备工作和交易内容][14]
+5.  [执行][15]
+    -   [准备工作(第1部分)][16]
+    -   [准备工作(第2部分)][17]
+    -   [调用][18]
+    -   [解释器(第1部分)][19]
+    -   [Solidity执行][20]
+    -   [EVM执行][21]
+        -   [释放内存指针并调用值][22]
+        -   [验证calldata (第1部分)][23]
+        -   [函数调度器][24]
+        -   [验证calldata (第2部分)][25]
+        -   [读取参数][26]
+        -   [transfer函数][27]
+        -   [transferFrom函数][28]
+        -   [日志记录][29]
+        -   [返回][30]
+    -   [解释器(第2部分)][31]
+    -   [Gas退还和收取][32]
+    -   [构建交易收据][33]
+6.  [打包区块][34]
+7.  [广播区块][35]
+8.  [验证区块][36]
+9.  [检索交易][37]
+10.  [后记][38]
 
-A transaction is just a way to tell the Ethereum network that you, as a user, want to execute an action. In this case that'd be sending 1 DAI to Vitalik. And a wallet (e.g., Metamask) helps build such transaction in a relatively beginner-friendly way.
+---
 
-Let's first go over the transaction that a wallet would build. It can be represented as an object with fields and their corresponding values.
+## 构建交易
 
-Ours will start looking like this:
+[钱包][39] 是一种可以方便地向以太坊网络发送 _交易_ 的软件.
+
+一笔交易是你作为用户告诉以太坊网络你想执行一个操作的方式。在这个案例中，你先执行的操作是向Vitalik发送1个DAI。钱包（例如Metamask）以相对新手友好的方式帮助构建这样的交易。
+
+让我们首先速览一下钱包将构建的交易。它可以表示为一个具有字段及其相应数值的对象。
+
+在我们的案例中，最开始看起来是这样的:
 
 `{     "to": "0x6b175474e89094c44da98b954eedeac495271d0f",     // [...] }`
 
-Where the field _to_ states the target address. In this case, `0x6b175474e89094c44da98b954eedeac495271d0f` is the address of the DAI smart contract.
+其中 字段 _to_ 表示目标地址. 在本案例中, `0x6b175474e89094c44da98b954eedeac495271d0f` 是DAI智能合约的地址.
 
-Wait, what?
+等等, 发生了什么?
 
-Weren't we supposed to be sending 1 DAI to Vitalik ? Shouldn't `to` be Vitalik's address?
+我们不是应该向Vitalik发送1个DAI吗？ `to` 难道不是应该是 Vitalik 的地址吗?
 
 Well, no. To send DAI, one must essentially craft a transaction that executes a piece of code stored in the blockchain (the fancy name for Ethereum's database) that will _update_ the recorded balances of DAI. Both the logic and related storage to execute such update is held in an immutable and public computer program stored in Ethereum's database. The DAI smart contract.
 
