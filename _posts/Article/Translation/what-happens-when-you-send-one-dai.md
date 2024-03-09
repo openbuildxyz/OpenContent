@@ -40,7 +40,7 @@ reviewer: ""
 2.  [接收交易][11]
     -   [检查内存池][12]
 3.  [传播][13]
-4.  [准备工作和交易内容][14]
+4.  [准备工作和交易打包][14]
 5.  [执行][15]
     -   [准备工作(第1部分)][16]
     -   [准备工作(第2部分)][17]
@@ -307,81 +307,109 @@ Gas 估算可以使用节点的 `eth_estimateGas` 端点进行。在发送1 DAI�
 
 成功将交易入池 (并进行内部 [日志][83] 记录)之后,，节点会 [返回交易哈希值][84]. 这正是我们之前在JSON-RPC的 请求——响应 中看到的返回结果 😎
 
-### Inspecting the mempool
+### 检查内存池
 
-If you send the transaction via Metamask or any similar wallet that is by default connected to traditional nodes, at some point it will land on public nodes' mempools. You can make sure of this by inspecting mempools by yourself.
+如果你通过 Metamask 或任何默认情况下会连接到传统节点的钱包发送交易，交易最终会进入公共节点的内存池。你可以自己检查内存池来确认这一点。
 
-There's a handy endpoint some nodes expose, called `eth_newPendingTransactionFilter`. Perhaps a good-old friend of [frontrunning][85] [bots][86]. Periodically querying this endpoint should allow us to observe the transaction to send 1 DAI walking into the mempool of a local test node before being included in the chain.
+有些节点会公开一个方便接入的端点，叫做 `eth_newPendingTransactionFilter`。可能是[抢先交易][85][机器人][86]的老朋友了。定期查询这个端点应该可以让我们观察到，在交易被打包进区块之前，要发送 1 DAI 的交易进入了本地测试节点的内存池。
 
-In Javascript code, this can be accomplished with:
+在 Javascript 代码中，可以这样实现:
 
-`const hre = require("hardhat");  hre.ethers.provider.on('pending', async function (tx) {     // do something with the transaction });`
+```js
+const hre = require("hardhat");
+hre.ethers.provider.on('pending', async function (tx)
+{
+    // 对交易做一些处理
+});
+```
 
-To see the actual `eth_newPendingTransactionFilter` call, we can just inspect the network traffic:
+要查看实际的 `eth_newPendingTransactionFilter` 调用，我们只需检查网络流量:
 
-![Wireshark traffic with JSON-RPC call subscribing to pending transactions](https://notonlyowner.com/images/new-pending-transaction-filter.png)
+![查看 pending 交易的 JSON-RPC 调用的 Wireshark 流量]()
 
-From now on, the script will (automatically) poll changes in the mempool. Here's the first of many subsequent periodic calls asking for changes:
+从现在开始，这个脚本会(自动地)查询内存池的变化。以下是随后许多个定期查询更改的请求中的首次请求：
 
-![Wireshark traffic with JSON-RPC call asking for changes in the mempool](https://notonlyowner.com/images/first-eth-get-filter-changes.png)
+![请求内存池变化的 JSON-RPC 调用的 Wireshark 流量]()
 
-And after receiving the transaction, here's the node finally answering with its hash:
+在接收到交易后，节点最终会以交易哈希作出回应：
 
-![Wireshark traffic with JSON-RPC call answering with detected transaction hash](https://notonlyowner.com/images/eth-get-filter-answer.png)
+![使用查询到的交易哈希作为应答的 JSON-RPC 调用的 Wireshark 流量]()
 
-The summarized request-response looks like:
+总结后请求——响应如下:
 
-`POST / HTTP/1.1 Content-Type: application/json content-length: 74  {     "jsonrpc":"2.0",     "method":"eth_getFilterChanges",     "params":["0x1"],     "id":58 } --- HTTP/1.1 200 OK Content-Type: application/json Content-Length: 105  {     "jsonrpc":"2.0",     "id":58,     "result":["0xbf77c4a9590389b0189494aeb2b2d68dc5926a5e20430fb5bc3c610b59db3fb5"] }`
+```http
+POST / HTTP/1.1
+Content-Type: application/json
+content-length: 74
+{
+    "jsonrpc":"2.0",
+    "method":"eth_getFilterChanges",
+    "params":["0x1"],
+    "id":58
+}
+```
 
-Earlier I said "traditional nodes" without explaining much. What I mean is that there are [more specialized nodes][87] that feature private mempools. They allow users to "hide" transactions from the public before they are included in a block.
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 105
 
-Regardless of the specifics, such mechanisms usually consist of establishing private channels between transaction senders and block builders. The [Flashbots Protect service][88] is one notable example. The practical consequence is that even if you're monitoring mempools with the method shown above, you won't be able to fetch transactions that make it to block builders via private channels.
+{
+    "jsonrpc":"2.0",
+    "id":58,
+    "result":["0xbf77c4a9590389b0189494aeb2b2d68dc5926a5e20430fb5bc3c610b59db3fb5"]
+}
+```
 
-Assume that the transaction to send 1 DAI is submitted to the network via common channels without leveraging this kind of services.
+之前我提到了“传统节点”，但没有多加解释。我的意思是，还有[更专业的节点][87]，它们有私有内存池的功能。它们允许用户在交易被打包进区块之前"隐藏"交易。
 
-## Propagation
+无论具体细节如何，这种机制通常包括在交易发送者和打包区块的人之间建立私有通道。[Flashbots Protect 服务][88]就是一个著名的例子。实际结果就是，即使你用上面展示的方法监控内存池，也无法获取通过私有通道发送给区块打包者的交易。
 
-For the transaction to be included in a block, it somehow needs to reach the nodes able to build and propose it. In [Proof-of-Work][89] Ethereum, these are called miners. In [Proof-of-Stake][90] Ethereum, validators. Though reality tends to be a bit more complicated. Be aware that there may be ways in which [block building can be outsourced][91] to specialized services.
+我们在这里假设发送 1 DAI 的交易是通过普通渠道提交到网络的，没有利用这类服务。
 
-As a common user, you shouldn't need to know who these block producers are, nor where they are located. Instead, you may simply send a valid transaction to any regular node in the network, have it included in the transaction pool, and let the peer-to-peer protocols do their thing.
+## 传播
 
-There are [a number of these p2p protocols][92] interconnecting Ethereum nodes. They allow, among other things, the frequent [exchange of transactions][93].
+要让交易被打包进区块，它需要以某种方式到达能够构建它并提交它的节点哪里。在[工作量证明PoW][89]以太坊中，这些节点叫矿工。在[权益证明PoS][90]以太坊中，这些节点叫验证者。不过现实往往更复杂一些。要知道[区块的构建可能会被外包][91]给专门的服务。
 
-Right from the start all nodes are [listening and broadcasting][94] transactions along with their peers (by default, [maximum 50 peers][95]).
+作为普通用户，你不需要知道这些区块的生产者是谁，也不需要知道他们在哪里。相反，你可以简单地把一笔有效交易发送给网络中的任意一个普通节点，让它把这个交易加入交易池，然后让P2P协议完成剩下的工作。
 
-Once a transaction reaches the mempool, it is [sent to all connected peers][96] that do not already know about the transaction.
+有[一系列P2P协议][92]让以太坊的节点之间互相连接。除此之外，它们还可以频繁地[交换交易][93]。
 
-To favor efficiency, only a random subset of connected nodes ([the square root][97] 🤓) are [sent the full transaction][98]. The rest is [only sent the transaction hash][99]. These could request back the full transaction if needed.
+从一开始，所有节点就在[监听并向它们的对等节点广播][94]交易(默认最多[50 个对等节点][95])。
 
-A transaction cannot linger in a node's mempool forever. If it's not first dropped for other reasons (e.g., the pool is full and the transaction is underpriced, or it gets replaced with a new one with higher nonce/price), it may be automatically [removed][100] after a certain period of time (by default, [3 hours][101]).
+一旦一笔交易到达内存池，它就会[被发送给所有还不知道这笔交易的已连接对等节点][96]。
 
-Valid transactions in the mempool that are considered ready to be picked up and processed by a block builder are [tracked][102] in a list of [pending transactions][103]. This data structure [can be queried][104] by block builders to obtain processable transactions that are allowed to make it into the chain.
+为了提高效率，只有一个已连接节点的随机子集([平方根数量级][97] 🤓)会[收到完整的交易][98]。其余的节点[只会收到交易哈希][99]。这些节点可以在需要时请求完整的交易信息。
 
-## Work preparation and transaction inclusion
+一笔交易不能永远停留在节点的内存池中。如果它没有因为其他原因先被丢弃(例如，交易池满了、交易的 gas 定价太低，或者它被一个 nonce/price 更高的新交易替换)，它可能会在一段时间后自动[被移除][100](默认值为[3 小时][101])。
 
-The transaction should reach a mining node (at least at the time of writing) after navigating mempools. Nodes of this type are particularly heavy multitaskers. For those familiar with Golang, this translates to quite a number of go routines and channels in the mining-related logic. For those unfamiliar with Golang, this means that miners regular operations cannot be explained as linearly as I'd like.
+内存池中被区块生产者认为已经准备好被提取和处理的有效交易会被[跟踪][102]在一个[待处理交易][103]列表中。区块生产者可以[查询][104]这个数据结构，获取允许被打包上链的可处理交易。
 
-This section's goal is twofold. First, understanding how and when our transaction is picked up from the mempool by a miner. Second, finding out at which point the transaction's execution starts.
+## 准备工作和交易打包
 
-At least two relevant things happen when the node's mining component is initialized. One, it [starts listening][105] for the arrival of new transactions to the mempool. Two, [some fundamental loops][106] are triggered.
+交易在遍历内存池后应该会到达一个挖矿节点(至少在撰写本文时是这样)。这类节点在多任务处理方面表现得尤其出色。对于熟悉 Golang 的人来说，这意味着在挖矿相关的逻辑中会有相当多的 go routine 和 channel。对于不熟悉 Golang 的人来说，这意味着矿工的常规操作无法像我希望的那样简单的解释。
 
-In Geth's jargon, the act of building a block with transactions and sealing it is called "committing work". Thus we want to understand under which circumstances this happens.
+这一节有两个目标。首先，理解我们的交易如何以及何时从内存池中被矿工提取。其次，找出交易的执行从哪个点开始。
 
-Focus on [the "new work" loop][107]. That's a standalone routine that, upon the node receiving [different kind of notifications][108], will trigger the commit of work. The trigger essentially entails [sending a work requirement][109] to another of the node's active listeners (running in the miners's ["main" loop][110]). When such work requirement is [received][111], the [commit of work begins][112].
+当节点的挖矿组件被初始化时，至少会发生两件相关的事情。一是它[开始监听][105]新交易进入内存池的情况；二是触发[一些基本循环][106]。
 
-The node starts with some [initial preparation][113]. Mainly consisting of building the block's header. This includes tasks like [finding the parent block][114], ensuring [the timestamp of the block being built][115] is correct, [setting the block number][116], [the gas limit][117], the [coinbase address][118] and [the base fee][119].
+用 Geth 的“行话”来说，构建一个包含交易的区块并封装它的行为叫做"提交工作"。因此我们想理解在什么情况下会触发提交。
 
-Afterwards, the consensus engine is invoked for the header's ["consensus preparation"][120]. This [calculates the right block difficulty][121] ([depending][122] on the current version of the network). If you've ever heard of Ethereum's "difficulty bomb", there you have it.
+让我们关注一下["new work"循环][107]。那是一个独立的协程，当节点收到[不同类型的通知][108]时，它会触发工作的提交。触发实质上意味着[将一些工作处理需求发送][109]到节点另一个活跃的监听器上(在矿工的["main"循环][110]中运行)。一旦受到这样的处理需求，[工作的提交就开始了][112]。
 
-The block sealing context [is created][123] next. Other actions aside, this consists of [fetching the last known state][124]. This is the state against which the first transaction in the block being built is going to be executed. That might be our transaction sending 1 DAI.
+节点从一些[初始准备][113]开始。主要包括构建区块头。这包括一些任务，比如[找到父区块][114]，确保[正在构建的区块的时间戳][115]正确，[设置块高][116]，[gas 限制][117]，[coinbase 地址][118]和[基础费用][119]。
 
-Having prepared the block, it is now [filled with transactions][125].
+之后，共识引擎被调用来为区块头做["共识准备"][120]。这会[计算正确的区块难度][121]([取决于][122]网络的当前版本)。如果你听说过以太坊的"难度炸弹"，就在那里。
 
-We've finally reached the point in which our pending transaction, so far just comfortably sitting in the node's mempool, [is picked up][126] along others.
+接下来[创建][123]区块打包所需的上下文。除此之外的其他操作，这包括[获取最新已知的状态][124]。这是正在构建的区块中的第一笔交易将在其上执行的状态。那可能就是我们发送 1 DAI 的交易。
 
-By default [transactions are ordered][127] within a block by price and nonce. For our case, the transaction's position within the block is practically irrelevant.
+在准备好区块后，现在用交易来[填充它][125]。
 
-Now the sequential [execution of these transactions][128] begins. One transaction [is executed][129] after the other, each building upon the resulting state of the previous one.
+我们终于到了这样一个点，我们的待处理交易，迄今为止只是舒适地停留在节点的内存池中，现在被与其他交易一起[取出来处理][126]。
+
+默认情况下，区块内的[交易是按 gas 价格 和 nonce 排序的][127]。在本例中，交易在区块内的位置实际上无关紧要。
+
+现在这些交易的[顺序执行][128]开始了。每一笔交易都在前一笔的结果状态之上[被执行][129]。
 
 ## Execution
 
