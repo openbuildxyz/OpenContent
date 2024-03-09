@@ -1,1 +1,1 @@
-# OpenBuild Translation Plan
+# OpenContent Plan
