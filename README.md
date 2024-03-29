@@ -2,10 +2,10 @@
 
  **OpenBuild**  联合  **[Foresight News](https://foresightnews.pro/)** ， **[登链社区](https://learnblockchain.cn/)**  推出内容为期一年的激励计划，我们将组建一个 **内容输出小组** ，大家共同学习、激励输出、一起成长。
  
-输出的**内容越优质，奖励越大** ，将根据以下[内容评价标准]([#内容评价标准](https://github.com/openbuildxyz/OpenContent/wiki/%E5%86%85%E5%AE%B9%E8%AF%84%E4%BB%B7%E6%A0%87%E5%87%86))  为 A - D 四个等级：  
+输出的**内容越优质，奖励越大** ，将根据以下[内容评价标准](https://github.com/openbuildxyz/OpenContent/wiki/%E5%86%85%E5%AE%B9%E8%AF%84%E4%BB%B7%E6%A0%87%E5%87%86) 为 A - D 四个等级：  
 不同等级的文章对应不同的奖励，A B C 等级对应着不同的奖励系数， 分别为 2、 1、 0.7， D 等级不予发表。
 
-详细奖励参考[这里]([url](https://github.com/openbuildxyz/OpenContent/wiki/%E5%A5%96%E5%8A%B1%E6%A0%87%E5%87%86))
+详细奖励参考[这里](https://github.com/openbuildxyz/OpenContent/wiki/%E5%A5%96%E5%8A%B1%E6%A0%87%E5%87%86) 。
 
 
 ## 投稿规则
