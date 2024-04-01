@@ -12,67 +12,8 @@ reviewer: ""
 
 ## P2P Money & Payment Network
 
-[
-
-![Shermin Voshmgir](https://miro.medium.com/v2/resize:fill:88:88/1*kXJ8_03LOe1MMqEyVQ9F1A.jpeg)
-
-
-
-
-
-
-
-
-
-][1][
-
-![Token Kitchen](https://miro.medium.com/v2/resize:fill:48:48/1*uAvIeldxcUWmpEy6u222Nw.jpeg)
-
-
-
-
-
-
-
-
-
-
-
-][2]
-
-[Shermin Voshmgir][3]
-
-·
-
-[Follow][4]
-
-Published in
-
-[
-
-Token Kitchen
-
-][5]
-
-·
-
-37 min read
-
-·
-
-Mar 1, 2024
-
-[
-
-][6]
-
-\--
-
-[][7]
-
-Listen
-
-Share
+[![Shermin Voshmgir](https://miro.medium.com/v2/resize:fill:80:80/1*kXJ8_03LOe1MMqEyVQ9F1A.jpeg)](https://sherminvoshmgir.medium.com/)[![Token Kitchen](https://miro.medium.com/v2/resize:fill:48:48/1*uAvIeldxcUWmpEy6u222Nw.jpeg)][2][Shermin Voshmgir](https://medium.com/@sherminvoshmgir?source=post_page-----c21d07b0e3b8--------------------------------)
+Published in [Token Kitchen][5] · 37 min read · Mar 2, 2024
 
 _TLDR: This is an excerpt from the book_ [_DAOs & Purpose-Driven Tokens_][8] _where I analyze not only Bitcoin the currency but the whole Bitcoin payment network including its stakeholders and the power structures that emerged between the different network stakeholders over time. The focus of this analysis is less on the technical details, but rather on the social and economic dynamics of the Bitcoin network. For readability purposes I shortened the chapter. It is still very long, so take your time when reading it, or skip to sections you might find more interesting:_
 
