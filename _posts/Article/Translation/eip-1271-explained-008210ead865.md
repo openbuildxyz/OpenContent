@@ -12,13 +12,13 @@ reviewer: ""
 <!-- more -->
 
 ## EIP-1271 is an important upgrade to the Ethereum network that’s stirred up quite a buzz, but what exactly is it?
-## EIP-1271是以太坊网络的一个重大升级，引起了热议，但它究竟是什么呢？
+## EIP-1271是以太坊网络的一个重大升级，引发了热议，但它究竟是什么呢？
 
 EIP-1271 (also known as ERC-1271) is an Ethereum improvement that enables smart contracts to validate signatures, allowing them to sign transactions just like traditional EOA wallets.
 EIP-1271（也称为ERC-1271）是一个能够让智能合约验证签名的以太坊改进方案，使其能够像传统的EOA钱包一样对交易签名。
 
 While at first EIP-1271 may seem like a niche technical bit of implementation, the standard unlocks a whole world of functionality for smart contracts that includes intent-based trading, advanced order types, and every other type of blockchain interaction that requires a wallet signature.
-虽然起初EIP-1271看起来像是一个小的技术改进方案，但这一标准为智能合约解锁了包括基于意图的交易、高级订单类型以及其他所有需要钱包签名的区块链交互功能的全新世界。
+起初EIP-1271看起来像是一个小的技术改进方案，但这一标准为智能合约解锁了一个全新的世界，包括基于意图的交易、高级订单类型以及其他所有需要钱包签名的区块链交互。
 
 # What is EIP-1271
 # 什么是EIP-1271
@@ -27,7 +27,7 @@ EIP-1271 serves as a “[standard signature validation method for contracts](htt
 EIP-1271 充当了“[合约的标准签名验证方法](https://eips.ethereum.org/EIPS/eip-1271)”，这使得智能合约能够验证某个合约上的签名是否有效——这是外部拥有账户（EOA）已经内置的功能。
 
 Before EIP-1271, smart contracts could send transactions, but they could not sign messages like traditional wallets. EOA have private keys which they use for signatures, validating that the message came from that particular wallet. Smart contracts, on the other hand, do not have private keys, so EIP-1271 was introduced as a standard way for smart contracts to validate a signature, enabling them to also sign messages.
-在EIP-1271之前，智能合约可以发送交易，但无法像传统钱包那样签署消息。EOA拥有私钥，使用私钥签名可以验证消息是否来自该钱包。另一方面，智能合约没有私钥，因此，EIP-1271作为一种智能合约验证签名的标准被引入，使它们也能签署信息。
+在EIP-1271之前，智能合约可以发送交易，但无法像传统钱包那样签署消息。EOA拥有私钥，使用私钥签名可以验证消息是否来自该钱包。然而，智能合约没有私钥，因此，EIP-1271作为一种智能合约验证签名的标准被引入，使它们也能签署信息。
 
 ## EIP-1271 vs ERC-1271
 ## EIP-1271和ERC-1271的区别
@@ -42,13 +42,13 @@ This means that “EIP-1271” is more accurately called “ERC-1271,” as the 
 # 为何EIP-1271如此有用？
 
 Over the last few years, Ethereum has seen a boom in specialized smart contracts leveraging ERC-1271 to sign messages. Signed messages are necessary for a variety of things including placing orders on decentralized exchanges using off-chain order books, verifying that a given wallet belongs to a user, and much more.
-在过去的几年中，以太坊见证了利用ERC-1271签署信息的专用智能合约的蓬勃发展。签署信息对于诸多事务至关重要，包括使用链下订单簿在去中心化交易所下单、验证给定的钱包是否属于某个用户等等。
+在过去的几年中，以太坊见证了利用ERC-1271签署信息的智能合约的蓬勃发展。签署信息对于诸多事务至关重要，包括使用链下订单簿在去中心化交易所下单、验证给定的钱包是否属于某个用户等等。
 
 ERC-1271-enabled smart contracts, however, unlock a whole new set of use-cases. This is because the ERC-1271 “isValidSignature” method can take in any arbitrary order logic, turning smart contract wallets into autonomous agents that can automatically sign messages based on on-chain conditions.
 然而，支持ERC-1271的智能合约解锁了一组全新的用例。这是因为ERC-1271的“isValidSignature”方法可以接受任意的指令逻辑，使得智能合约钱包变成了可以基于链上条件自动签署消息的自治代理。
 
 Let’s take a look at the various use-cases that ERC-1271 makes possible for smart contracts.
-让我们来看看ERC-1271为智能合约可能实现的各种用例。
+让我们看看ERC-1271使智能合约成为可能的各种用例。
 
 ## Off-Chain Order Books
 ## 链下订单簿
@@ -75,7 +75,7 @@ In both of these cases, smart contract wallets leverage ERC-1271 to sign verific
 ## 智能合约意图(Intents for Smart Contracts)
 
 Recently, many DeFi solutions have begun relying on [intents][7] as a mechanism for providing users with better prices, MEV protection, advanced order types, and a whole host of other benefits.
-最近，许多DeFi解决方案开始依赖[意图](https://docs.cow.fi/cow-protocol/concepts/introduction/intents)（intents）作为一种机制，为用户提供更好的价格、MEV保护、高级订单类型和其他一系列好处。
+最近，许多DeFi解决方案开始使用[意图](https://docs.cow.fi/cow-protocol/concepts/introduction/intents)（intents）作为一种机制，为用户提供更好的价格、MEV保护、高级订单类型和其他一系列好处。
 
 CoW Protocol is a meta DEX aggregator that pioneered many use-cases of intents, all of which rely on signed messages. Regular EOA orders are signed ahead of time, but thanks to ERC-1271, smart contract orders can hold off on the order signature until settlement time and check that conditions such as oracle prices, current balances, block times, and more are met before the trade goes through. This unlocks a number of unique trading strategies only available through smart contract wallets.
 CoW协议是一个元DEX聚合器，它开创了许多意图（intents）用例，所有用例都依赖于签名消息。常规EOA订单需要提前签名，但得益于ERC-1271，智能合约订单可以在结算时才对订单进行签名，并在交易完成前检查是否满足价格预言机的价格、当前余额、区块时间等条件。这解锁了很多只能通过智能合约钱包实现的特殊交易策略。
@@ -109,10 +109,10 @@ Programmatic orders execute indefinitely into the future based on on-chain condi
 程序化订单根据链上条件长期执行。这些条件可以包括检查链上价格、智能合约钱包余额、区块时间、交易量等任意逻辑。
 
 There are already a number of deployed use-cases for ERC-1271-enabled programmatic orders including:
-已经有许多支持ERC-1271的程序化订单的部署用例，包括：
+有许多已经部署的支持ERC-1271程序化订单的用例，包括：
 
 -   Automated DAO operations including payroll, treasury diversification, and fee collection
--   自动化 DAO 操作，包括工资单、资金多元化和手续费归集
+-   自动化DAO操作，包括工资单、资金多元化和手续费归集
 -   Portfolio rebalancing based on the state of assets in a smart contract wallet
 -   根据智能合约钱包中的资产状态进行投资组合再平衡
 -   Special order types including stop-loss, good-after-time, and take-profit
@@ -122,7 +122,7 @@ There are already a number of deployed use-cases for ERC-1271-enabled programmat
 ## 任何需要签名的应用程序
 
 We’ve covered a number of the use-cases that require signed messages, but ERC-1271 enables a potentially limitless number of uses… Any time a smart contract wants to use an application that requires a wallet signature, they need ERC-1271.
-我们已经介绍了许多需要签名消息的用例，但ERC-1271使得潜在的使用场景几乎无限……只要智能合约想使用需要钱包签名的应用程序，都需要ERC-1271。
+我们已经介绍了许多需要签名消息的用例，但ERC-1271开启了无限的潜在使用场景……只要智能合约想使用需要钱包签名的应用程序，都需要ERC-1271。
 
 Here are a few final examples requiring signatures:
 以下是需要签名的几个示例:
@@ -159,7 +159,7 @@ ERC-1271’s “isValidSignature” method
 ERC-1271’的“isValidSignature”方法
 
 The method takes a “bytes32 hash” representing an order hash and an arbitrary byte array which is where the conditions for the signature go. This array can be any number of things — an EOA signature from an owner or delegate of the smart contract, the smart contract checking an oracle or an on-chain state to determine if the order should execute, or any other arbitrary logic.
-该方法接受两个参数，一个代表订单哈希的“bytes32 hash”和一个包含签名的条件的任意字节数组。这个数组可以是很多事物——来自智能合约所有者或委托人的EOA签名、检查预言机价格或链上状态以确定订单是否应该执行的智能合约，或任何其他任意逻辑。
+该方法接受两个参数，一个代表订单哈希的“bytes32 hash”和一个包含签名条件的任意字节数组。这个数组可以是很多内容——来自智能合约所有者或委托人的EOA签名、检查预言机价格或链上状态以确定订单是否应该执行的智能合约，或任何其他任意逻辑。
 
 Finally, the “isValidSignature” method returns a response that determines whether the order should execute.
 最后，通过“isValidSignature”方法返回值决定订单是否应该执行。
