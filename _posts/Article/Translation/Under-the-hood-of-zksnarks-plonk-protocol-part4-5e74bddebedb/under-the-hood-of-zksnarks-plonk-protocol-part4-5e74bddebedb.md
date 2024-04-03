@@ -14,152 +14,166 @@ reviewer: ""
 
 <!-- more -->
 
-# zkSNARKs的内部机制 — PLONK 协议：第三部分
+# zkSNARKs的内部机制 — PLONK 协议：第四部分
 
 [![Crypto Fairy](./1_nrbTgZM_zY_Isf4qDqpfjA.png)](https://medium.com/@cryptofairy) [Crypto Fairy](https://medium.com/@cryptofairy)
 8 min read · Nov 2, 2023
 
-This article will discuss the permutation check in PLONK, which I believe is the second most challenging aspect of the protocol. The most challenging part, in my opinion, is debugging and identifying errors in the code.
+本文将讨论 PLONK 中的置换检查，我认为这是协议中第二大挑战。在我看来，最具挑战性的部分是调试和识别代码中的错误。
 
-[
 
-## Under the hood of zkSNARKs — PLONK protocol: part3
+在之前的讨论中，我们深入探讨了 PLONK 算法的复杂性，探索了门和门约束的细节。结果，我们将证明者程序的所有状态编码成了若干向量：
 
-### Many materials available online explain the basics of the PLONK protocol, often referencing Vitalik’s example…
 
-medium.com
+<div align="center">
+  <img src="./1_EcFks1f8tmlvsVCZTyddLQ.webp" alt="图片描述">
+</div>
 
 
+向量 a 、 b 和 c 被称为 witness vectors 。保持这些向量的机密性，使其不被验证者发现至关重要。另一方面，前缀为字母 q 的向量被称为 selector vectors。这些向量的作用是作为一组标志，在系统内启用适当的门控和布线机制。
 
-][6]
 
-In our previous discussion, we delved into the complexities of arithmetization in PLONK, exploring the details of gates and gate constraints. As the result we encoded all the states of the prover program into number of vectors:
+向量描述了程序的状态，但它并没有完全解决门之间的互连问题。在 PLONK 中创建稳健的证明不仅依赖于单个门的一致性，关键还在于这些门之间连线的一致性。这才是真正的挑战所在：
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*EcFks1f8tmlvsVCZTyddLQ.png)
 
-Vectors ‘a’, ‘b’, and ‘c’ are referred to as the ‘witness vectors’. It’s crucial to maintain the confidentiality of these vectors, keeping them hidden from the verifier. On the other hand, vectors prefixed with the letter ‘q’ are known as ‘selector vectors’. These vectors function as a set of flags that enable the proper gating and wiring mechanisms within the system.
+<div align="center">
+  <img src="./1_lK8zKlF2fTSVDgyLq5Pi6w.webp" alt="图片描述">
+</div>
 
-Vectors describe the program’s state, yet it doesn’t fully address the interconnection between gates. The creation of a robust proof in PLONK relies not only on the consistency of individual gates but also crucially on the consistency of wiring between these gates. This is where the real challenge lies:
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*lK8zKlF2fTSVDgyLq5Pi6w.png)
+在这个可视化图中，颜色代表了门之间的连线，这是我们需要精心构建的关键部分。值得注意的是，我们在这里的关注点从门约束的值转移到了导线及其值。
 
-In this visualization, the colors represent the wiring between gates, a critical component that we need to construct meticulously. It’s important to note that our focus here shifts from the values, as was the case with gate constraints, to both the wires and their values.
+为确保正常运行，每根导线都有一个唯一的索引。然后，我们的任务就是验证每条导线只连接一次。这一挑战本质上简化为比较两个列表：我们需要检查一个列表中的每个元素是否也出现在另一个列表中。为方便起见，我们使用以下公式：
 
-To ensure proper functioning, each wire is assigned a unique index. Our task then is to verify that each wire is connected only once. This challenge essentially reduces to comparing two lists: we need to check whether every element in one list is also present in the other. To facilitate this, we use the following formula:
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*p03Jnl2jNJsWqNieiPncfQ.png)
+<div align="center">
+  <img src="./1_p03Jnl2jNJsWqNieiPncfQ.webp" alt="图片描述">
+</div>
 
-This formula looks scary and ugly, which is one of the reasons why Zero-Knowledge Proofs (ZKPs) can be challenging to understand. So, let’s break it down with a simple example. Imagine we have two lists:
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*gPL_OiKzd89JEE4NCrvpaA.png)
+这个公式看起来既可怕又丑陋，这也是零知识证明（ZKPs）难以理解的原因之一。因此，让我们用一个简单的例子来解释它。假设我们有两个列表：
 
-Now, let’s try to perform an element-wise division and then multiply the results together.
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*tn9v5CEIjjBvrTlSX-V73A.png)
 
-The result will be 1, and this is because the elements effectively cancel each other out. But what if the second list had two instances of 1, like this:
+<div align="center">
+  <img src="./1_gPL_OiKzd89JEE4NCrvpaA.webp" alt="图片描述">
+</div>
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*NTIz05S7_mzHDtJ-lCXhzA.png)
+现在，让我们试着进行元素除法，然后将结果相乘。
 
-The result would then be 4. It’s a clever way to check if two lists contain the same elements, isn’t it? We can write down a formula for this:
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*z1H0CC119o7lbhON-2s1Gw.png)
+<div align="center">
+  <img src="./1_tn9v5CEIjjBvrTlSX-V73A.webp" alt="图片描述">
+</div>
 
-Two lists: L and L’. We begin by dividing the first elements of each list and continue this process sequentially. The result of each division is multiplied by the result from the previous division. Since the first elements do not have a preceding division, we start with an initial value, setting `acc0 = 1` as a placeholder. After completing this process for all elements, the final result should be 1. Now, let’s consider another pair of lists:
+结果将是 1，这是因为这些元素实际上相互抵消了。但是，如果第二个列表中有两个 1 的实例呢？
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*UBncgS68pUHv0_eymNXyZg.png)
 
-Using the formula previously discussed, you’ll notice that the result will also be 1, even though the lists are different. To fix this issue, we introduce an offset to the elements in the list. This offset is denoted by the symbol gamma (γ), which is a randomly chosen number. For example, let’s assume γ=4:
+<div align="center">
+  <img src="./1_NTIz05S7_mzHDtJ-lCXhzA.webp" alt="图片描述">
+</div>
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*Jw6cnjg5cU80T1fRpGtd6Q.png)
+结果就是 4。检查两个列表是否包含相同元素的方法很巧妙，不是吗？我们可以为此写下一个公式：
 
-Up to now, our focus has been on verifying whether all elements from one list are present in another. The next logical step is to associate values with their corresponding wire indexes. Let’s introduce a function, sigma (σ), which returns a permutation index for lists L and L’ as examples, where L = \[1, 3, 2, 4\] and L’ = \[1, 2, 4, 3\]:
 
--   σ(1) = 1, meaning the 1st element from L’ is also the 1st in L.
--   σ(2) = 3, meaning the 2nd element from L’ is the 3rd in L.
--   σ(3) = 4, meaning the 3rd element from L’ is the 4th in L.
--   σ(4) = 2, meaning the 4th element from L’ is the 2nd in L.
+<div align="center">
+  <img src="./1_z1H0CC119o7lbhON-2s1Gw.webp" alt="图片描述">
+</div>
 
-We can encode L and L’ into tuples, where firs item is a value, second is an index and a sigma function for L’:
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*8Eo3_dqNPW5OruIxPG-edA.png)
+两个列表： L 和 L'。我们首先对每个列表的第一个元素进行除法运算，然后依次进行。每次除法的结果乘以前一次除法的结果。由于第一个元素前面没有除法，因此我们从初始值开始，设置 acc0 = 1 作为占位符。完成所有元素的除法后，最终结果应该是 1。现在，让我们考虑另一对列表：
 
-Now substitute σ with the values it returns:
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*kLbtZyPc8gjgrzrvRuWncQ.png)
+<div align="center">
+  <img src="./1_UBncgS68pUHv0_eymNXyZg.webp" alt="图片描述">
+</div>
 
-Using tuples (p, q), we can effectively represent the relationship between values and their corresponding indexes in the code. But for mathematicians this notation doesn’t make any sense so they would put it like this; take a random value beta (β) and encode L and L’ as (p + qβ):
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*SLMUrKKAP1fwAFluTMroow.png)
+使用前面讨论过的公式，你会发现尽管列表不同，结果也是 1。为了解决这个问题，我们为列表中的元素引入了一个偏移量。这个偏移量用符号 gamma (γ)表示，它是一个随机选择的数字。例如，假设 γ=4：
 
-So if we divide all values and multiply the results we will get 1:
+<div align="center">
+  <img src="./1_Jw6cnjg5cU80T1fRpGtd6Q.webp" alt="图片描述">
+</div>
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*p-yrU9Zr0AmmHzaav385Vg.png)
+到目前为止，我们的重点是验证一个列表中的所有元素是否都存在于另一个列表中。下一个合乎逻辑的步骤是将值与相应的线性索引关联起来。让我们引入一个函数 sigma (σ)，它以列表 L 和 L' 为例返回 permutation 索引，其中 L = [1,3,2,4]，L' = [1,2,4,3]：
 
-And together with gamma (γ):
+-   σ(1) = 1，即 L' 中的第 1 个元素也是 L 中的第 1 个元素。
+-   σ(2) = 3, 即 L' 中的第 2 个元素是 L 中的第 3 个元素。
+-   σ(3) = 4, 即 L' 中的第 3 个元素是 L 中的第 4 个元素。
+-   σ(4) = 2, 即 L' 的第 4 个元素是 L 中的第 2 个元素。
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*O8Eb6GP8M_GNnzEaItXdZw.png)
+我们可以将 L 和 L' 编码成元组，其中第一项是值，第二项是索引，L' 的 sigma 函数：
 
-Now we can generalize it into the formula:
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*0hZ2m1GH0_AYfktWRyxJoA.png)
+<div align="center">
+  <img src="./1_8Eo3_dqNPW5OruIxPG-edA.webp" alt="图片描述">
+</div>
 
-Do you see where we are going with this? We need to apply it to vectors a, b, and c.
+现在用它返回的值代替 σ：
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*NGNOsTIR82po28t3qdGOZQ.png)
 
-So, if we now proceed to multiply these divisions, the result will not be 1. This outcome is due to a key point I mentioned earlier: each permutation, represented as (iβ) and (βσ(i)), must have unique indexes. Consequently, we cannot use the same index values in vectors ‘b’ and ‘c’.
+<div align="center">
+  <img src="./1_kLbtZyPc8gjgrzrvRuWncQ.webp" alt="图片描述">
+</div>
 
-Let’s assume that the permutations for vector ‘a’ are indexed from 1 to ’n’. For vector ‘b’, we’ll use indexes from ‘2n’ to ‘3n’, and for vector ‘c’, we’ll use indexes starting from ‘3n’. Additionally, the values ‘2’ and ‘3’ in this context can be denoted as ‘k1’ and ‘k2’, respectively.
+使用元组（p, q），我们可以在代码中有效地表示值与相应索引之间的关系。但对于数学家来说，这种符号没有任何意义，所以他们会这样说：取一个随机值 beta (β)，将 L 和 L' 编码为 (p + qβ)：
 
-Regarding the sigma function, we now introduce three distinct sigma functions Sσ1, Sσ2, and Sσ3:
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*XMpDwxB8uO0suZE1I4Yq3w.png)
+<div align="center">
+  <img src="./1_SLMUrKKAP1fwAFluTMroow.webp" alt="图片描述">
+</div>
 
-Now, with these considerations in place, the original formula becomes less scary than before. The remaining step involves transitioning from plain indexes, such as 1, 2, etc., to roots of unity. This shift is part of an optimization process discussed in the second part of our previous article, where we explored the benefits of replacing plain indexes with roots of unity for efficiency:
+因此，如果我们将所有数值相除再相乘，就会得到 1：
 
-[
 
-## Under the hood of zkSNARKs — PLONK protocol: Part 2
+<div align="center">
+  <img src="./1_p-yrU9Zr0AmmHzaav385Vg.webp" alt="图片描述">
+</div>
 
-### In the previous article of the PLONK series, we covered the core of the protocol, the KZG commitment scheme, and how…
+和 gamma(γ) 一起：
 
-medium.com
 
+<div align="center">
+  <img src="./1_O8Eb6GP8M_GNnzEaItXdZw.webp" alt="图片描述">
+</div>
 
 
-][7]
+现在，我们可以将其归纳为公式：
 
-Thus, we need to take a primitive root of unity (ω) and generate a series of indexes from it. This step is essential for our formula to reach its final form:
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*v_IoQgujlyq8UUfbcQsqSQ.png)
+<div align="center">
+  <img src="./1_0hZ2m1GH0_AYfktWRyxJoA.webp" alt="图片描述">
+</div>
 
-In next article we start to code protocol:
 
-[
+你明白我们要做什么了吗？我们需要将其应用于向量 a、b 和 c。
 
-## Under the hood of zkSNARKs — PLONK protocol: part 5
 
-### Previous articles in the PLONK series served as preparations before we got our hands dirty and started implementing the…
+<div align="center">
+  <img src="./1_NGNOsTIR82po28t3qdGOZQ.webp" alt="图片描述">
+</div>
 
-medium.com
+因此，如果我们现在将这些除数相乘，结果不会是 1。造成这种结果的原因是我前面提到的一个关键点：每种排列（表示为 (iβ) 和 (βσ(i)) ）必须有唯一的索引。因此，我们不能在向量 b 和 c 中使用相同的索引值。
 
 
+假设向量 a 的排列索引从 1 到 n。对于向量 b ，我们将使用从 2n 到 3n 的索引，而对于向量 c ，我们将使用从 3n 开始的索引。此外，2 和 3 在这里可以分别表示为 k1 和 k2。
 
-][8]
+关于 sigma 函数，我们现在引入三个不同的 sigma 函数 Sσ1、Sσ2 和 Sσ3：
 
-**References:**
 
--   Plonk Permutations by David Wong [https://www.youtube.com/watch?v=iY2ue8Kfsb0][9]
--   Plonk Paper [https://eprint.iacr.org/archive/2019/953/1599151811.pdf][10]
+<div align="center">
+  <img src="./1_XMpDwxB8uO0suZE1I4Yq3w.webp" alt="图片描述">
+</div>
 
-[1]: /@cryptofairy?source=post_page-----5e74bddebedb--------------------------------
-[2]: /@cryptofairy?source=post_page-----5e74bddebedb--------------------------------
-[3]: /m/signin?actionUrl=https%3A%2F%2Fmedium.com%2F_%2Fsubscribe%2Fuser%2Fb3a405d735c6&operation=register&redirect=https%3A%2F%2Fmedium.com%2F%40cryptofairy%2Funder-the-hood-of-zksnarks-plonk-protocol-part4-5e74bddebedb&user=Crypto+Fairy&userId=b3a405d735c6&source=post_page-b3a405d735c6----5e74bddebedb---------------------post_header-----------
-[4]: /m/signin?actionUrl=https%3A%2F%2Fmedium.com%2F_%2Fvote%2Fp%2F5e74bddebedb&operation=register&redirect=https%3A%2F%2Fmedium.com%2F%40cryptofairy%2Funder-the-hood-of-zksnarks-plonk-protocol-part4-5e74bddebedb&user=Crypto+Fairy&userId=b3a405d735c6&source=-----5e74bddebedb---------------------clap_footer-----------
-[5]: /m/signin?actionUrl=https%3A%2F%2Fmedium.com%2F_%2Fbookmark%2Fp%2F5e74bddebedb&operation=register&redirect=https%3A%2F%2Fmedium.com%2F%40cryptofairy%2Funder-the-hood-of-zksnarks-plonk-protocol-part4-5e74bddebedb&source=-----5e74bddebedb---------------------bookmark_footer-----------
-[6]: /@cryptofairy/under-the-hood-of-zksnarks-plonk-protocol-part3-821855e49ce6?source=post_page-----5e74bddebedb--------------------------------
-[7]: /@cryptofairy/under-the-hood-of-zksnarks-plonk-protocol-part-2-ee00d6accb4d?source=post_page-----5e74bddebedb--------------------------------
-[8]: /@cryptofairy/under-the-hood-of-zksnarks-plonk-protocol-part-5-4819dd56d3f1?source=post_page-----5e74bddebedb--------------------------------
-[9]: https://www.youtube.com/watch?v=iY2ue8Kfsb0
-[10]: https://eprint.iacr.org/archive/2019/953/1599151811.pdf
+现在，有了这些考虑，原来的公式就不那么可怕了。剩下的步骤就是从普通索引，如 1、2 等，过渡到统一根。这一转变是优化过程的一部分，我们在上一篇文章的第二部分讨论了用统一根代替普通索引以提高效率的好处：
+
+
+因此，我们需要取一个单位根的原根（ω），并从中生成一系列指数。这一步对于我们的公式达到最终形式至关重要。
+
+
+<div align="center">
+  <img src="./1_v_IoQgujlyq8UUfbcQsqSQ.webp" alt="图片描述">
+</div>
+
+
+下一篇文章中，我们将开始编写协议代码：
