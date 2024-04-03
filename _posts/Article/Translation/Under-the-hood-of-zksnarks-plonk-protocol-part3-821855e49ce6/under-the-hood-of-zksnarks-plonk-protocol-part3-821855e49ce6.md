@@ -9,12 +9,11 @@ reviewer: ""
 
 <div align="center">
   <img src="./1_i0lHuI6MK-k5f1k8bm178w.webp" alt="图片描述">
-  <p style="font-size: 12px">算术电路</p>
 </div>
 
 <!-- more -->
 
-# [Translate] zkSNARKs的内部机制 — PLONK 协议：第三部分
+# zkSNARKs的内部机制 — PLONK 协议：第三部分
 
 [![Crypto Fairy](./1_nrbTgZM_zY_Isf4qDqpfjA.png)](https://medium.com/@cryptofairy) [Crypto Fairy](https://medium.com/@cryptofairy)
 8 min read · Nov 2, 2023
