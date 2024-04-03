@@ -6,13 +6,15 @@ translator: ""
 reviewer: ""
 ---
 
-![](https://miro.medium.com/v2/resize:fit:640/format:webp/1*COFAGFtqPefAlN3Q3yklwQ.png)
+
+<div align="center">
+  <img src="./1_COFAGFtqPefAlN3Q3yklwQ.webp" alt="图片描述">
+  <p style="font-size: 12px">排列 - 由 Openai 查看</p>
+</div>
 
 <!-- more -->
 
-Permutations — seen by Openai
-
-# Under the hood of zkSNARKs — PLONK protocol: part4
+# zkSNARKs的内部机制 — PLONK 协议：第三部分
 
 [
 
