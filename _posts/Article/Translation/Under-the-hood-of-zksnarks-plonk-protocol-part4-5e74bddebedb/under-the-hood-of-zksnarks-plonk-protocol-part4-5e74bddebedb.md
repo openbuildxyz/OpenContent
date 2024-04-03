@@ -16,45 +16,8 @@ reviewer: ""
 
 # zkSNARKs的内部机制 — PLONK 协议：第三部分
 
-[
-
-![Crypto Fairy](https://miro.medium.com/v2/resize:fill:88:88/1*nrbTgZM_zY_Isf4qDqpfjA.png)
-
-
-
-
-
-
-
-
-
-][1]
-
-[Crypto Fairy][2]
-
-·
-
-[Follow][3]
-
-6 min read
-
-·
-
-Nov 14, 2023
-
-[
-
-][4]
-
-\--
-
-1
-
-[][5]
-
-Listen
-
-Share
+[![Crypto Fairy](./1_nrbTgZM_zY_Isf4qDqpfjA.png)](https://medium.com/@cryptofairy) [Crypto Fairy](https://medium.com/@cryptofairy)
+8 min read · Nov 2, 2023
 
 This article will discuss the permutation check in PLONK, which I believe is the second most challenging aspect of the protocol. The most challenging part, in my opinion, is debugging and identifying errors in the code.
 
