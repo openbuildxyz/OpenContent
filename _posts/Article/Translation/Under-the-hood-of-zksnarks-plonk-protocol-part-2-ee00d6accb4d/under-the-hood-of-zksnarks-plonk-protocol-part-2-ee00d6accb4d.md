@@ -11,7 +11,7 @@ reviewer: ""
   <p style="font-size: 12px">多项式 — OpenAI所见</p>
 </div>
 
-# zkSNARKs的内部机制 — PLONK 协议：第一部分
+# zkSNARKs的内部机制 — PLONK 协议：第二部分
 
 
 [![Crypto Fairy](./1_nrbTgZM_zY_Isf4qDqpfjA.png)](https://medium.com/@cryptofairy)[![Coinmonks](./1_-_aiJHzJPz655N7iSSrLrQ.png)](https://medium.com/coinmonks) [Crypto Fairy](https://medium.com/@cryptofairy)
@@ -128,29 +128,6 @@ print(roots)
 这就是证明者在生成证明时可以节省时间的消失多项式。
 
 
-Additionally, using roots of unity as evaluation points has a performance benefit. In the protocol, there are number of polynomial multiplications, which are one of the performance bottlenecks for proof generation. The most efficient way to perform these multiplications is by using Fast Fourier Transforms (FFTs), and FFTs are feasible only when roots of unity are used as evaluation points. The video below provides some good insights into why this is the case:
+此外，使用统一根作为评估点还具有性能优势。在协议中，有许多多项式乘法，这是证明生成的性能瓶颈之一。执行这些乘法的最有效方法是使用快速傅立叶变换（FFT），而只有使用统一根作为评估点时，FFT 才是可行的。下面的视频很好地解释了为什么会出现这种情况：
 
-This is all for now. In the next article, we will start to delve into the PLONK protocol.
-
-[
-
-## Under the hood of zkSNARKs — PLONK protocol: part3
-
-### Many materials available online explain the basics of the PLONK protocol, often referencing Vitalik’s example…
-
-medium.com
-
-
-
-][10]
-
-[1]: /@cryptofairy?source=post_page-----ee00d6accb4d--------------------------------
-[2]: https://medium.com/coinmonks?source=post_page-----ee00d6accb4d--------------------------------
-[3]: /@cryptofairy?source=post_page-----ee00d6accb4d--------------------------------
-[4]: /m/signin?actionUrl=https%3A%2F%2Fmedium.com%2F_%2Fsubscribe%2Fuser%2Fb3a405d735c6&operation=register&redirect=https%3A%2F%2Fmedium.com%2Fcoinmonks%2Funder-the-hood-of-zksnarks-plonk-protocol-part-2-ee00d6accb4d&user=Crypto+Fairy&userId=b3a405d735c6&source=post_page-b3a405d735c6----ee00d6accb4d---------------------post_header-----------
-[5]: https://medium.com/coinmonks?source=post_page-----ee00d6accb4d--------------------------------
-[6]: /m/signin?actionUrl=https%3A%2F%2Fmedium.com%2F_%2Fvote%2Fcoinmonks%2Fee00d6accb4d&operation=register&redirect=https%3A%2F%2Fmedium.com%2Fcoinmonks%2Funder-the-hood-of-zksnarks-plonk-protocol-part-2-ee00d6accb4d&user=Crypto+Fairy&userId=b3a405d735c6&source=-----ee00d6accb4d---------------------clap_footer-----------
-[7]: /m/signin?actionUrl=https%3A%2F%2Fmedium.com%2F_%2Fbookmark%2Fp%2Fee00d6accb4d&operation=register&redirect=https%3A%2F%2Fmedium.com%2Fcoinmonks%2Funder-the-hood-of-zksnarks-plonk-protocol-part-2-ee00d6accb4d&source=-----ee00d6accb4d---------------------bookmark_footer-----------
-[8]: /@cryptofairy/under-the-hood-of-zksnarks-plonk-protocol-part-1-34bc406d8303?source=post_page-----ee00d6accb4d--------------------------------
-[9]: https://curves.xargs.org/?source=post_page-----ee00d6accb4d--------------------------------#finite-field-math
-[10]: /@cryptofairy/under-the-hood-of-zksnarks-plonk-protocol-part3-821855e49ce6?source=post_page-----ee00d6accb4d--------------------------------
+现在就到此为止。在下一篇文章中，我们将开始深入研究 PLONK 协议。
