@@ -2,7 +2,7 @@
 title: Bitcoin Network Analysis
 authorURL: ""
 originalURL: https://medium.com/token-kitchen/bitcoin-network-analysis-c21d07b0e3b8
-translator: ""
+translator: "coco723"
 reviewer: ""
 ---
 
