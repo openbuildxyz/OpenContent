@@ -18,13 +18,13 @@ EIP-1271 (also known as ERC-1271) is an Ethereum improvement that enables smart 
 EIP-1271（也称为ERC-1271）是一个能够让智能合约验证签名的以太坊改进方案，使其能够像传统的EOA钱包一样对交易签名。
 
 While at first EIP-1271 may seem like a niche technical bit of implementation, the standard unlocks a whole world of functionality for smart contracts that includes intent-based trading, advanced order types, and every other type of blockchain interaction that requires a wallet signature.
-起初EIP-1271看起来像是一个小的技术改进方案，但这一标准为智能合约解锁了一个全新的世界，包括基于意图的交易、高级订单类型以及其他所有需要钱包签名的区块链交互。
+起初EIP-1271看起来像是一个小的技术改进方案，但这一标准为智能合约解锁了一个全新的世界，包括基于意图的交易（intent-based trading）、高级订单类型以及其他所有需要钱包签名的区块链交互。
 
 # What is EIP-1271
 # 什么是EIP-1271
 
 EIP-1271 serves as a “[standard signature validation method for contracts](https://eips.ethereum.org/EIPS/eip-1271)” which gives smart contracts the ability to verify whether a signature on behalf of a given contract is valid — a feature that Externally Owned Accounts (EOA) already have built-in.
-EIP-1271 充当了“[合约的标准签名验证方法](https://eips.ethereum.org/EIPS/eip-1271)”，这使得智能合约能够验证某个合约上的签名是否有效——这是外部拥有账户（EOA）已经内置的功能。
+EIP-1271 作为“[合约签名验证方法的标准](https://eips.ethereum.org/EIPS/eip-1271)”，使得智能合约能够验证某个合约上的签名是否有效——这是外部账户（EOA）已经内置的功能。
 
 Before EIP-1271, smart contracts could send transactions, but they could not sign messages like traditional wallets. EOA have private keys which they use for signatures, validating that the message came from that particular wallet. Smart contracts, on the other hand, do not have private keys, so EIP-1271 was introduced as a standard way for smart contracts to validate a signature, enabling them to also sign messages.
 在EIP-1271之前，智能合约可以发送交易，但无法像传统钱包那样签署消息。EOA拥有私钥，使用私钥签名可以验证消息是否来自该钱包。然而，智能合约没有私钥，因此，EIP-1271作为一种智能合约验证签名的标准被引入，使它们也能签署信息。
@@ -54,10 +54,10 @@ Let’s take a look at the various use-cases that ERC-1271 makes possible for sm
 ## 链下订单簿
 
 One of the most common uses of ERC-1271 involves orders on decentralized exchanges (DEX’s). Some exchanges, like CoW Protocol and Matcha, use an off-chain order book to collect signed messages before they become orders, allowing for additional optimizations. In order for smart contracts to be able to trade using these systems, they need ERC-1271 to validate signatures.
-ERC-1271的一项最常见的用途是关于去中心化交易所（DEX）上的订单。像CoW协议和Matcha这样的交易所使用链下订单簿来收集签名信息，在这些信息变成订单之前，允许做出额外的优化。为了使智能合约能够使用这些系统进行交易，它们需要ERC-1271来验证签名。
+ERC-1271最常见的用途之一是关于去中心化交易所（DEX）上的订单。像CoW Protocol和Matcha这样的交易所使用链下订单簿来收集签名信息，在这些信息变成订单之前做出额外的优化。为了使智能合约能够使用这些系统进行交易，它们需要ERC-1271来验证签名。
 
 Limit orders in particular are a common type of DEX order that relies on an off-chain order book, so smart contracts require ERC-1271 in order to place limit orders.
-限价订单是一种常见的DEX订单类型，它依赖于链下订单簿，因此智能合约需要支持ERC-1271标准才能下限价订单。
+限价单（Limit order）是一种常见的DEX订单类型，它依赖于链下订单簿，因此智能合约需要支持ERC-1271标准才能下限价订单。
 
 ## Sign-to-Verify
 ## 签名验证
@@ -66,7 +66,7 @@ Authentication is a necessity in web3.
 在Web3中，身份验证是必须的。
 
 Many web3 applications require users to sign a message proving that they control a connected wallet in order to use the application. NFT marketplaces such as OpenSea and Rarible, meanwhile, require users to sign a message to place bids, update profile images, and perform other gas-less transactions.
-很多web3应用程序要求用户签名一条消息，用于证明他们控制连接的钱包后才能使用该应用程序。与此同时，OpenSea和Rarible等NFT市场要求用户签署消息来进行出价、更新个人资料图像以及执行其他无Gas费的交易。
+很多web3应用程序要求用户签名一条消息，证明他们控制着连接的钱包后才能使用该应用程序。与此同时，OpenSea和Rarible等NFT市场要求用户签署消息来进行出价、更新个人资料图像以及执行其他无Gas费的交易。
 
 In both of these cases, smart contract wallets leverage ERC-1271 to sign verification messages.
 在这两种情况下，智能合约钱包都利用ERC-1271来签署验证信息。
@@ -78,7 +78,7 @@ Recently, many DeFi solutions have begun relying on [intents][7] as a mechanism 
 最近，许多DeFi解决方案开始使用[意图](https://docs.cow.fi/cow-protocol/concepts/introduction/intents)（intents）作为一种机制，为用户提供更好的价格、MEV保护、高级订单类型和其他一系列好处。
 
 CoW Protocol is a meta DEX aggregator that pioneered many use-cases of intents, all of which rely on signed messages. Regular EOA orders are signed ahead of time, but thanks to ERC-1271, smart contract orders can hold off on the order signature until settlement time and check that conditions such as oracle prices, current balances, block times, and more are met before the trade goes through. This unlocks a number of unique trading strategies only available through smart contract wallets.
-CoW协议是一个元DEX聚合器，它开创了许多意图（intents）用例，所有用例都依赖于签名消息。常规EOA订单需要提前签名，但得益于ERC-1271，智能合约订单可以在结算时才对订单进行签名，并在交易完成前检查是否满足价格预言机的价格、当前余额、区块时间等条件。这解锁了很多只能通过智能合约钱包实现的特殊交易策略。
+CoW Protocol是一个元DEX聚合器，它开创了许多意图（intents）用例，所有用例都依赖于签名消息。常规EOA订单需要提前签名，但得益于ERC-1271，智能合约订单可以在结算时才对订单进行签名，并在交易完成前检查是否满足价格预言机的价格、当前余额、区块时间等条件。这解锁了很多只能通过智能合约钱包实现的特殊交易策略。
 
 **Milkman for Safe Trading**
 **让交易更安全的Milkman(Milkman for Safe Trading)**
@@ -96,14 +96,14 @@ This means that DAOs no longer have to commit to an execution price ahead of tim
 **高级订单类型（Advanced Order Types）**
 
 Smart contract signatures on CoW Protocol allow for a number of advanced order types. One notable example is CoW Protocol’s [TWAP orders](https://blog.cow.fi/cow-swap-launches-twap-orders-d5583135b472), which use ERC-1271 smart contract signatures to autonomously place orders in even time intervals.
-CoW协议上的智能合约签名允许多种高级订单类型。值得一提的是CoW协议的[TWAP](https://blog.cow.fi/cow-swap-launches-twap-orders-d5583135b472)订单，它使用ERC-1271智能合约签名在固定的时间间隔自主下单。
+CoW Protocol上的智能合约签名允许多种高级订单类型。值得一提的是CoW Protocol的[TWAP](https://blog.cow.fi/cow-swap-launches-twap-orders-d5583135b472)订单，它使用ERC-1271智能合约签名在固定的时间间隔自主下单。
 
 **The Programmatic Order Framework**
 **程序化订单框架（The Programmatic Order Framework）**
 
 The [Programmatic Order Framework](https://blog.cow.fi/introducing-the-programmatic-order-framework-from-cow-protocol-088a14cb0375
 ) from CoW Protocol takes full advantage of ERC-1271 by allowing anyone to code custom order logic for any type of order.
-CoW协议的程序化订单框架充分利用了ERC-1271的优势，允许任何人为任何类型的订单编写自定义逻辑。
+CoW Protocol的程序化订单框架充分利用了ERC-1271的优势，允许任何人为任何类型的订单编写自定义逻辑。
 
 Programmatic orders execute indefinitely into the future based on on-chain conditions. These conditions can include any arbitrary logic including checking on-chain prices, smart contract wallet balances, block times, volumes, and more.
 程序化订单根据链上条件长期执行。这些条件可以包括检查链上价格、智能合约钱包余额、区块时间、交易量等任意逻辑。
@@ -128,9 +128,9 @@ Here are a few final examples requiring signatures:
 以下是需要签名的几个示例:
 
 -   **Gasless Trading**: Some decentralized exchanges leveraging intents have begun offering “gasless trading,” a feature which allows users to make trades without paying for gas in ETH. On CoW Protocol, for example, all trades take gas fees in the sell token, leveraging signed messages to specify the order details.
--   **无Gas交易**：一些基于意图（intents）的去中心化交易所已经开始提供“无Gas交易”，该功能允许用户无需支付ETH Gas费用即可进行交易。例如，在CoW协议上，所有交易都采用出售代币支付gas费，利用签名消息来指定订单详细信息。
+-   **零Gas交易**：一些基于意图（intents）的去中心化交易所已经开始提供“零Gas交易”，该功能允许用户无需支付ETH Gas费用即可进行交易。例如，在CoW Protocol上，所有交易都采用出售的代币来支付gas费，利用签名消息来指定订单详细信息。
 -   **Native Token Flow**: On CoW Protocol, users can trade ETH natively, without having to use the ERC-20 “WETH” wrapped version. This is once again enabled by signed messages which specify the order details while bonded third parties ([solvers](https://docs.cow.fi/cow-protocol/concepts/introduction/solvers)) handle the execution.
--   **原生代币流程**：在CoW协议上，用户可以交易原生ETH，而无需使用ERC-20 “WETH”包装版本。这再次得益于签名消息，该消息指定订单详细信息，同时委托第三方（[solvers](https://docs.cow.fi/cow-protocol/concepts/introduction/solvers)）负责执行。
+-   **原生代币流程**：在CoW Protocol上，用户可以交易原生ETH，而无需使用ERC-20 “WETH”包装版本。这再次得益于签名消息，该消息指定订单详细信息，同时委托第三方（[solvers](https://docs.cow.fi/cow-protocol/concepts/introduction/solvers)）负责执行。
 -   **Web3 Login**: Services such as [Dynamic.xyz](https://www.dynamic.xyz/) build account abstraction functionality which allows users to use decentralized apps with just a traditional web2 email address. When using smart contract wallets, these services heavily rely on ERC-1271 to provide full signing functionality.
 -   **Web3登录**：[Dynamic.xyz](https://www.dynamic.xyz/)等服务构建帐户抽象功能，允许用户仅通过传统的web2电子邮件地址即可使用去中心化应用程序。当使用智能合约钱包时，这些服务严重依赖ERC-1271来提供完整的签名功能。
 
@@ -159,7 +159,7 @@ ERC-1271’s “isValidSignature” method
 ERC-1271’的“isValidSignature”方法
 
 The method takes a “bytes32 hash” representing an order hash and an arbitrary byte array which is where the conditions for the signature go. This array can be any number of things — an EOA signature from an owner or delegate of the smart contract, the smart contract checking an oracle or an on-chain state to determine if the order should execute, or any other arbitrary logic.
-该方法接受两个参数，一个代表订单哈希的“bytes32 hash”和一个包含签名条件的任意字节数组。这个数组可以是很多内容——来自智能合约所有者或委托人的EOA签名、检查预言机价格或链上状态以确定订单是否应该执行的智能合约，或任何其他任意逻辑。
+该方法接受两个参数，一个代表订单哈希的“bytes32 hash”和一个包含签名条件的任意长度的byte数组。这个数组可以是很多内容——来自智能合约所有者或委托人的EOA签名、检查预言机价格或链上状态以确定订单是否应该执行的智能合约，或其他任意逻辑。
 
 Finally, the “isValidSignature” method returns a response that determines whether the order should execute.
 最后，通过“isValidSignature”方法返回值决定订单是否应该执行。
@@ -189,7 +189,7 @@ As Ethereum adoption grows, the needs of traders become more complex, eclipsing 
 随着以太坊的普及和发展，交易者的需求变得更加复杂，超越了传统EOA的内置功能。ERC-1271为使用智能合约进行交易打开了新的大门，这些智能合约可以创建自主、有条件的订单，为用户提供更强大的交易能力。
 
 CoW Protocol is at the forefront of innovations relying on ERC-1271, and you can already take advantage of new order types today by swapping on [CoW Swap](https://swap.cow.fi/#/swap?utm_source=medium&utm_campaign=EIP-1271-article) or by developing custom solutions through the Programmatic Order Framework(also known as ComposableCoW).
-CoW协议依托ERC-1271走在了创新前沿，你已经可以通过在CoW Swap上进行交换或通过[程序化订单框架](https://hackmd.io/pmZX_qT2Q1yw59KiiT6TPQ)（也称为ComposableCoW）开发自定义解决方案来创建新型订单。
+CoW Protocol依托ERC-1271走在了创新前沿，你已经可以通过在CoW Swap上进行交换或通过[程序化订单框架](https://hackmd.io/pmZX_qT2Q1yw59KiiT6TPQ)（也称为ComposableCoW）开发自定义解决方案来创建新型订单。
 
 As always, happy trading!
 一如既往，交易愉快！
