@@ -3,7 +3,7 @@ title: EIP-1271 Explained
 authorURL: ""
 originalURL: https://blog.cow.fi/eip-1271-explained-008210ead865
 translator: "sum"
-reviewer: ""
+reviewer: "kaka"
 ---
 
 # EIP-1271 Explained
