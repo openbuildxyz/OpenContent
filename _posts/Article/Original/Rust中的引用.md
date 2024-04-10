@@ -1,4 +1,3 @@
-# References and Borrowing
 
 ### 引用References出现的背景
 
@@ -344,3 +343,6 @@ Rust使用借用检测器来确保引用被安全使用：
 2. 创建一个引用会将权限从borrowed path转移到引用
 3. 一旦引用的lifetime结束 权限就会返回
 4. 数据的生命周期必须比所有指向它的引用的生命周期长
+
+参考：
+https://rust-book.cs.brown.edu/
