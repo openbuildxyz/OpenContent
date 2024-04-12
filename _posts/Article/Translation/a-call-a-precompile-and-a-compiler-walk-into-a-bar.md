@@ -1,8 +1,8 @@
 ---
-title: A call, a precompile and a compiler walk into a bar
-authorURL: ""
-originalURL: https://blog.theredguild.org/a-call-a-precompile-and-a-compiler-walk-into-a-bar/
-translator: ""
+title: A call, a precompile and a compiler walk into a bar（调用，预编译和编译器到底是怎么工作的）
+author URL: ""
+original URL: https://blog.theredguild.org/a-call-a-precompile-and-a-compiler-walk-into-a-bar/
+translator: "张云帆"
 reviewer: ""
 ---
 
@@ -10,35 +10,30 @@ reviewer: ""
 
 <!-- more -->
 
-Photo by [Drew Beamer][1] / [Unsplash][2]
+照片由 [Drew Beamer][1] / [Unsplash][2] 提供
 
-March 15, 2024 by [tincho][3] — 8 min read
+写于2024年3月15日  作者 [tincho][3] — 阅读时间8分钟
 
-# A call, a precompile and a compiler walk into a bar
+# 函数调用（call），预编译（precompile）和编译器（compiler）到底是怎么工作的
 
-After 5 years of using Solidity, I thought I knew how calls worked. I didn't.
+用Solidity写了5年程序，我以为我知道调用（calls）是如何工作的。但这一切在我遇到一段L2中的不可能的Solidity代码时发生了改变。
 
-After 5 years of reading and writing Solidity, I thought I knew how external calls worked.
+我遇到了一段代码它应该是不能运行的。如果我对Solidity的了解都是正确的，那么我遇到的这个合约就不应该正常运行。但不知什么原因，事实并非如此。
 
-After 5 years of reading and writing Solidity, I should have known better.
+测试显示没有错误。 测试网已经运行了好几周。这个系统经过了多次安全审查。这样一个损坏的代码不应该已经被报告并修复吗？ 甚至另一个更流行的 L2 也使用类似的代码。
 
-It all started when I faced an impossible piece of Solidity code in a new L2.
+我所看到的一切都与我对Solidity外部调用的了解相矛盾。我会错得这么离谱吗？
 
-It just couldn't work. If all I knew about Solidity was right, then the contract JUST. COULDN'T. WORK. Plain and simple. All of it was so obviously broken. Yet somehow, it wasn't.
+我的debug技巧让我失败了。这里面有很多令人感动的事情。如果你曾经尝试调试一个交易，这个交易使用预部署，调用自定义预编译，这个预编译对L2的自定义版本的geth中的内容进行 ABI解码，而该版本派生了另一个L2的代码，你就会明白我的感受。
 
-Tests were green. A dummy testnet had been running for weeks. The system had undergone many security reviews. Shouldn't such a broken code have been reported and fixed already? Even another more popular L2 was using similar code.
+怀疑演变成绝望。盲目信仰的诱惑愈演愈烈。但我不会屈服！幸运的是，我只用了几个小时就完成了突然的启发、理解到解脱的过程。
 
-Everywhere I looked contradicted what I knew about Solidity external calls. Could I be so wrong?
+有些人在宗教书籍中发现了揭示真相的真理。 有些人则在机场休息室浏览自助书籍。而我在 C++文件的第2718行找到了它。
 
-My debugging skills failed me. There were so many moving pieces. If you've ever tried to debug a transaction hitting a predeploy calling a custom precompile that ABI-decodes stuff in a custom version of geth of a L2 that forked another L2's code, you feel me.
 
-Disbelief evolved into hopelessness. The temptation of blind faith intensified. But I wouldn't give in! Luckily, because I was only hours away from sudden enlightenment, understanding and relief.
+## 先检查 再调用
 
-Some people find revealing truth in a religious book. Others skimming self-help books in airport lounges. I found it in line 2718 of a C++ file.
-
-## Check then call
-
-The high-level Solidity syntax for an external call can look like this:
+外部调用（external call）的Solidity语法如下所示：
 
 ```Solidity
 pragma solidity ^0.8.0;
@@ -53,9 +48,9 @@ contract Example {
 }
 ```
 
-Example contract with an external call
+使用外部调用的示例合约
 
-If you compile that, after the always useful warning for not having included a license identifier, you'll find this bytecode:
+如果你编译这个合约，会弹出没有包含许可证标识符（license identifier）的警告，你会看到这个字节码
 
 ```
 ...
@@ -63,13 +58,13 @@ CALL
 ...
 ```
 
-Almost complete EVM bytecode after compiling with solc 0.8.15
+用solc编译后的EVM字节码0.8.15
 
-Unsurprisingly, the compiler translates the Solidity high-level call to the `CALL` opcode. Oversimplifying you say? Ok, let's dig a bit deeper.
+不出所料，编译器将Solidity高级调用转换为`CALL`操作码。你觉得过于简单？好吧，让我们深入一点。
 
-Those who've dealt with Solidity longer than one DeFi summer know that the compiler includes safety checks.
+那些处理Solidity超过一个去中心化金融夏天（defi summer）的人知道编译器包括安全检查。
 
-Before a `CALL`, the compiler puts bytecode to validate that the call's target has code. It places an `EXTCODESIZE`, including the necessary logic to reach a `REVERT` before the `CALL` in case the `EXTCODESIZE` of the target is 0.
+在`CALL`之前，编译器放置字节码来验证调用的目标是否有代码。它放置了一个`EXTCODESIZE`，包括在`CALL`之前到达`REVERT`的必要逻辑，以防目标的`EXTCODESIZE`为0。
 
 ```
 EXTCODESIZE
@@ -79,13 +74,13 @@ REVERT
 CALL
 ```
 
-More accurate bytecode after compiling with solc 0.8.15
+使用solc编译后更准确的字节码0.8.15
 
-But even a developer that arrived late to the DeFi summer 2021 and has been coding Solidity ever since, just to be ready for the next bull market, knows that. They may have seen it in the bytecode, or, the more mentally sane, may have read it [in Solidity's docs][4]:
+但是，即使是一个在2021年夏天去中心化金融后半段开始并从那以后一直在编写Solidity，为下一个牛市做好准备的开发人员也知道这一点。他们可能已经在字节码中看到了它，或者，更准确地说，可能已经在Solidity文档[4]中发现了它：
 
-> Due to the fact that the EVM considers a call to a non-existing contract to always succeed, Solidity includes an extra check using the extcodesize opcode when performing external calls. This ensures that the contract that is about to be called either actually exists (it contains code) or an exception is raised.
+>由于EVM认为对不存在的合约的调用总是成功的，Solidity在执行外部调用时使用`extcodesize`操作码进行额外检查。这确保了即将被调用的合约要么实际存在（它包含代码），要么引发异常。
 
-I was convinced of the above. So much that when I first saw something like this code, I found it hard to believe:
+我对上述内容深信不疑。以至于当我第一次看到这样的代码时，我很难相信：  
 
 ```Solidity
 pragma solidity ^0.8.0;
@@ -102,44 +97,43 @@ contract Example {
   }
 }
 ```
+在深入研究之前，我们先熟悉一下一些概念。
 
-Before diving into it, let's make sure we're on the same page.
+## 预编译
 
-## On precompiles
+预编译是没有存储字节码但可以执行代码的EVM帐户。它们的执行代码存储在节点本身中。通常你会发现它们[在可能地址的最低范围内][5]。
 
-Precompiles are EVM accounts that don't have bytecode stored, but can execute code. Their executable code is stored in the nodes' themselves. Usually you'll find them [in the lowest range of possible addresses][5].
+要执行预编译，您需要调用它所在的地址。例如，`ecRecovery`是地址为“0x00…01”的EVM的一个预编译。
 
-To execute a precompile, you call the address where it lives. For example, `ecrecover` is one precompile of the EVM at address `0x00...01`.
-
-Let's see its code:
+让我们看看它的代码：
 
 ```bash
 cast code 0x0000000000000000000000000000000000000001
 0x
 ```
 
-Told you, it doesn't have EVM bytecode. Its actual [code is in the node][6].
+它没有EVM字节码。它的实际代码[在节点中][6]。
 
-While Ethereum has its own precompiles, there's nothing preventing L2s from including new ones into their nodes. It can be a powerful way to supercharge the EVM's functionality.
+虽然以太坊有自己的预编译，但没有什么可以阻止L2将新编译包含到其节点中。这可能是增强EVM功能的强大方式。
 
-## Calling precompiles from Solidity
+## 从Solidity调用预编译
 
-Precompiles don't have EVM bytecode. And I thought Solidity wouldn't allow high-level calls to an account with no bytecode. It'd revert before reaching the call.
+预编译没有EVM字节码。我认为Solidity不允许对没有字节码的帐户进行高级调用。它会在调用之前恢复。
 
-So, to call a precompile, I'd use Solidity low-level calls. The ones that operate on addresses instead of contract instances. These kind of calls don't include the `EXTCODESIZE` check, as [the docs][7] explain.
+因此，要调用预编译，我会使用Solidity低级调用（对地址而不是合约实例进行操作的调用）。正如[文档][7]所解释的那样，这种调用不包括`EXTCODESIZE`。
 
-For example, to call a precompile at 0x04:
+例如，要在0x04调用预编译：
 
 ```Solidity
 // Call precompile at address 0x04
 (, bytes memory returndata) = address(4).call(somedata)
 ```
 
-The standard EVM precompiles are rather straightforward, so it's simple to call them that way. You send some raw bytes of data, they perform some calculation, and return a raw set of bytes with the results.
+标准的EVM预编译非常简单，因此用这种方式调用它们也很简单。你发送一些原始数据字节，它们执行一些计算，并返回一组带有结果的原始字节。
 
-Solc does have built-in functions to call some (but not all) precompiles, like `ecrecover`. Just to spare you from writing low-level calls. But that's not relevant here.
+Solc确实有内置函数来调用一些（但不是全部）预编译，例如`ecRecovery`。只是为了让你不用编写低级调用。但这在这里是无关紧要的。
 
-Precompiles of L2s can be more complex than the "standard" ones in the EVM. They may include different _functions_ within a single precompile. For instance, there could be a precompile that implemented the interface we saw earlier:
+L2的预编译可能比EVM中的“标准”编译更复杂。它们可能在单个预编译中包含不同的`_functions_`。例如，可能有一个预编译实现了我们之前看到的接口：
 
 ```Solidity
 interface IPrecompile {
@@ -148,34 +142,32 @@ interface IPrecompile {
 }
 ```
 
-So, assuming the precompile can somehow handle it (we'll see an example later), you might call its `foo` function with something along these lines:
+因此，假设预编译可以以某种方式处理它（我们稍后会看到一个示例），你可以使用以下内容调用它的`foo`函数：
 
 ```Solidity
 (, bytes memory returndata) = address(customPrecompileAddress).call(abi.encodeWithSelector(IPrecompile.foo.selector));
 uint256 result = abi.decode(returndata, (uint256));
 ```
 
-But not with a high-level call like this:
+但不是像这样的调用
 
 ```Solidity
 uint256 result = IPrecompile(precompileAddress).foo();
 ```
 
-That would fail. I'm telling you. The documentation I read says so, we saw the `EXTCODESIZE` check earlier.
+那会失败的。我告诉你。我读到的文档是这么说的，我们之前看到了`EXTCODESIZE`检查。
 
-C'mon please, don't insist, it won't work.
+不要坚持了，这是行不通的。
 
-Nah, just kidding. The high-level call works too. To understand why, let's first create a custom precompile, then do some tests, and finally inspect how solc _really_ works under the hood.
+哈哈，我只是开个玩笑。高级调用也有效。为了理解背后的原因，首先我们需要创建一个自定义预编译，然后做一些测试，最后检查solc是如何在后台工作的。
 
-## Adding a new precompile
+## 添加新的预编译
 
-Let's start by creating a custom precompile in the `core/vm/contracts.go` file of [go-ethereum][8].
-
+让我们首先在[go-ethereum][8]的“core/vm/contracts.go”文件中创建一个自定义预编译。
 💡
+有更聪明的方法可以将一组复杂的自定义预编译添加到EVM。这是一个更实际的例子，研究[ArbOS是如何做到的][9]。
 
-There're smarter ways to add a complex set of custom precompiles to the EVM. For a more realistic example, study [how ArbOS does it][9].
-
-The precompile I'll create checks the input bytes against the function selectors for `foo` and `bar`. When the selector for `foo` matches, it returns the number 43. When the selector for `bar` matches, it returns nothing.
+我将创建的预编译根据`foo`和`bar`的函数选择器检查输入字节。当`foo`的选择器匹配时，它返回数字43。当`bar`的选择器匹配时，它不返回任何内容。
 
 ```Go
 type myPrecompile struct{}
@@ -199,7 +191,7 @@ func (p *myPrecompile) Run(input []byte) ([]byte, error) {
 }
 ```
 
-The precompile will be at the `0x0b` address:
+预编译会在'0x0b'地址：
 
 ```Go
 var PrecompiledContractsCancun = map[common.Address]PrecompiledContract{
@@ -208,9 +200,10 @@ var PrecompiledContractsCancun = map[common.Address]PrecompiledContract{
 }
 ```
 
-Then build go-ethereum (`make geth`) and run it in dev mode (`./build/bin/geth --dev --http`).
+然后构建go-ethereum（'make geth'）并在开发模式下运行它（'./build/bin/geth--dev--http'）。
 
-Validate the precompile is alive with [cast][10]:
+使用[cast][10]验证预编译是否有效：  
+
 
 ```bash
 cast call 0x000000000000000000000000000000000000000b "foo()"
@@ -228,15 +221,15 @@ Error:
 (code: -32000, message: bad input, data: None)
 ```
 
-Quick tests calling the new precompile from cast
+快速测试从cast调用新的预编译
 
-All set! Let's move on to Solidity now.
+都准备好了！现在让我们转向Solidity。
 
-## Calling the custom precompile
+## 调用自定义预编译
 
-Time to call the `foo` function of the new precompile I created at address `0x0b`.
+是时候调用我在地址“0x0b”新创建的预编译`foo`函数了。
 
-I'll use a high-level call. According to what I knew, this should NOT work. It should revert before triggering the call, because the `EXTCODESIZE` check included by the compiler will return 0 for the `0x0b` address, and therefore reach a `REVERT` in the bytecode.
+我将使用一个高级调用。据我所知，这应该不起作用。它应该在触发调用之前恢复，因为编译器包含的`EXTCODESIZE`检查将为“0x0b”地址返回0，因此在字节码中到达`REVERT`。
 
 ```Solidity
 // SPDX-License-Identifier: UNLICENSED
@@ -257,9 +250,9 @@ contract PrecompileCaller {
 }
 ```
 
-Example contract to test high-level call to a precompile
+测试对预编译的高级调用的示例合约
 
-Here's a simple [Hardhat][11] test to execute it:
+这是一个简单的[Hardhat][11]测试来执行它：
 
 ```Javascript
 describe("PrecompileCaller", function () {
@@ -286,9 +279,9 @@ $ yarn hardhat test --network localhost
   1 passing (224ms)
 ```
 
-Wat? That shouldn't have worked 🤔
+怎么回事？ 这应该是不能运行的 🤔
 
-Let's see. If calling `foo` works, then calling `bar` should also work. I'll add some code in the contract to call the precompile's `bar` function.
+让我们看看。如果调用`foo`有效，那么调用`bar`也应该有效。我将在合约中添加一些代码来调用预编译的`bar`函数。
 
 ```Solidity
 // SPDX-License-Identifier: UNLICENSED
@@ -313,7 +306,7 @@ contract PrecompileCaller {
 }
 ```
 
-The extended Hardhat test now looks like:
+扩展的Hardhat测试现在如下所示：
 
 ```Javascript
 const { expect } = require("chai");
@@ -355,11 +348,11 @@ $ yarn hardhat test --network localhost
      ProviderError: execution reverted
 ```
 
-Crap.
+糟糕。
 
-## I don't know how calls work
+## 我不知道调用是如何工作的
 
-See? I told you. I didn't know how calls work. After all these years. Here's the Solidity code again:
+看到了吗？我告诉过你。在写了那么多年代码后，我不知道调用是如何工作的。这是Solidity代码：
 
 ```Solidity
 // SPDX-License-Identifier: UNLICENSED
@@ -384,17 +377,17 @@ contract PrecompileCaller {
 }
 ```
 
-We're in easy mode here. There's one clear difference between the two functions in this example. The real case was more difficult and I couldn't see it so clearly.
+我们现在是处于简单模式。在这个例子中，这两个函数有一个明显的区别。真实的案例更难，我不太能理解。
 
-Yes, the difference is in the returns. Could a declared return value have something to do with all this?
+这里的区别在于返回值（returns）。声明的返回值可能与这一切有关吗？
 
-## No checks if return
+## 如果返回则不检查
 
-This is how I learned that Solidity doesn't _always_ include the `EXTCODESIZE` check in high-level calls.
+我了解到Solidity不总是在高级调用中包含`EXTCODESIZE`检查。
 
-Let's analyse the Yul code produced for the functions `callFoo` and `callBar` of the `PrecompileCaller` contract of the example.
+让我们分析一下“PrecompileCaller”合约的函数`callFoo`和`callBar`生成的Yul代码。
 
-For `callFoo`:
+对于`callFoo`：
 
 ```Solidity
 function fun_callFoo_32() {
@@ -404,7 +397,7 @@ function fun_callFoo_32() {
   let _3 := call(gas(), expr_21_address,  0,  _1, sub(_2, _1), _1, 32)
 ```
 
-For `callBar`:
+对于 `callBar`:
 
 ```Solidity
 function fun_callBar_45() {
@@ -417,15 +410,15 @@ function fun_callBar_45() {
  let _8 := call(gas(), expr_41_address,  0,  _6, sub(_7, _6), _6, 0)
 ```
 
-In `callFoo`, the compiler didn't include an `EXTCODESIZE` check before the call. Opposite to what it did in `callBar`. Why would it do that?
+在`callFoo`中，编译器在调用前没有包含`EXTCODESIZE`检查。与它在`callBar`中所做的相反。它为什么要这样做？
 
-The answer lies buried in line [2718 and 2719 of this C++ file][12]. Lo and behold:
+答案隐藏在C++文件的第[2718和2719行][12]中。
 
-> We do not need to check extcodesize if we expect return data, since if there is no code, the call will return empty data and the ABI decoder will revert.
+>如果我们期望返回数据，我们不需要检查extcodesize，因为如果没有代码，调用将返回空数据并且ABI解码器将恢复。
 
-What does this mean?
+这是什么意思？
 
-Remember the interface I used in Solidity:
+还记得我在Solidity中使用的`interface`吗：
 
 ```Solidity
 interface IPrecompile {
@@ -434,27 +427,27 @@ interface IPrecompile {
 }
 ```
 
-Based on this definition, the compiler expects `foo` to return something (a `uint256`). Because of that, it won't place an `EXTCODESIZE` check prior to calling it!
+根据这个定义，编译器期望`foo`返回一些东西（“uint256”）。 因此，它不会在调用之前进行`EXTCODESIZE`检查！
 
-Solc assumes that if the target has no code, in practice there won't be return data anyway, and therefore attempting to ABI-decode no return data to the declared return type (the `uint256`) will inevitably fail. So it might as well skip the code size check prior to the call.
+Solc假设目标没有代码，实际上无论如何都不会返回数据，因此将无返回数据的 ABI 解码作为返回类型（“uint256”）将会失败。 因此，它可能会在调用之前跳过代码大小检查。
 
-Adding to my confusion, the compiler didn't always behave this way. Skipping the code size check for external calls when return data is expected was [introduced in 0.8.10][13]. That means +2 years ago. I guess I was late to find out?
+更让我困惑的是，编译器并不总是这样。 当需要返回数据时，跳过外部调用的代码大小检查[在 0.8.10 中引入的][13]。 这意味着这至少是在2年前。 我想我发现得太晚了？
 
-Even after writing this article, I thought the documentation was incomplete and outdated. Well, it kind of isn't. My dear [matta][14] found that this special behavior is documented [in another section][15], which I hadn't read 🤦
+即使在写完这篇文章后，我仍然认为文档不完整且过时。但事实并非如此。我亲爱的[matta][14]发现这种特殊行为[在另一节][15]中有记录，但我没有读过🤦
 
-There's room to improve that documentation. So we proposed [a small PR][16] to make them clearer and more consistent.
+该文档还有改进的空间。 所以我们提出了[一个小PR][16]，让它们更清晰、更一致。
 
-I wish I could say that I now know how Solidity calls work. But there might be a new surprise waiting for me around the corner.
+我希望我现在可以说我知道Solidity调用是如何工作的了。但也许转角处会有新的惊喜在等着我。
 
 ![](https://blog.theredguild.org/content/images/2023/11/file-Luuf7zu3dIoPwrwlME2PVISM-1-1-1.png)
 
-## Want more stories? Subscribe to the blog!
+## 想要更多故事？订阅博客！
 
-It's cool. It's free. And we don't spam.Too lazy to do that.
+没关系，免费的。我们也不发垃圾邮件。我懒得发垃圾邮件。
 
 [i'm a subscriboooooor][17]
 
-[][18][][19][][20]The link has been copied!
+[][18][][19][][20]链接已复制！
 
 [1]: https://unsplash.com/@dbeamer_jpg?utm_source=ghost&utm_medium=referral&utm_campaign=api-credit
 [2]: https://unsplash.com/?utm_source=ghost&utm_medium=referral&utm_campaign=api-credit
