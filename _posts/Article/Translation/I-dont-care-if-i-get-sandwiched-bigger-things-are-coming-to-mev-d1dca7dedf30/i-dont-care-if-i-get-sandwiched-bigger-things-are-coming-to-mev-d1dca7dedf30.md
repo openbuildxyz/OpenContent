@@ -209,7 +209,7 @@ Flashbots 还为我们带来的另一个巧妙功能是被称为捆绑交易。
 
 现在，这两个不同的搜索者将交易批量打包成一个捆绑交易，并将捆绑交易提交给 Flashbots。
 
-如果顺序不被保持，捆绑交易将被撤销。但是正如您所看到的，**TX #1**只能被使用一次，因此只有一个捆绑交易会生存下来，并在下一个区块中得到确认。
+如果顺序不被保持，捆绑交易将被撤销。但是正如你所看到的，**TX #1**只能被使用一次，因此只有一个捆绑交易会生存下来，并在下一个区块中得到确认。
 
 这种新型的交易处理机制引入了另一种称为**贿赂战**的战争，我们将在下一节中详细了解。
 
@@ -303,17 +303,17 @@ Flashbots 还为我们带来的另一个巧妙功能是被称为捆绑交易。
 
 然后开始模拟它们，看它们是否盈利。
 
-有人说时间不是一个因素，但我认为这并不是事实。构建者受计算能力的限制表明，您提交捆绑交易的速度越快，它就越有可能被考虑为“候选”进入下一个区块。
+有人说时间不是一个因素，但我认为这并不是事实。构建者受计算能力的限制表明，你提交捆绑交易的速度越快，它就越有可能被考虑为“候选”进入下一个区块。
 
 为了构建最有利可图的区块，构建者必须进一步解决一个背包问题：**我们应该如何选择和排序这些捆绑交易，以最大化我们的利润。**
 
 通过生成大量的交易和捆绑交易组合，构建者将对整个组合进行模拟，看哪个组合将最大程度地增加他们的 ETH 余额。
 
-正如您所看到的，区块构建本身就是一种策略。
+正如你所看到的，区块构建本身就是一种策略。
 
-希望这一切都说得通，并帮助您了解区块构建者在做什么。
+希望这一切都说得通，并帮助你了解区块构建者在做什么。
 
-如果您愿意开始一个构建者业务，有一些非常好的资源可以帮助您入门：
+如果你愿意开始一个构建者业务，有一些非常好的资源可以帮助你入门：
 
 <a href="https://github.com/ralexstokes/mev-rs?source=post_page-----d1dca7dedf30--------------------------------" style="text-decoration: none; color: inherit;">
   <div style="display: flex; justify-content: flex-start; border: 1px solid black; padding: 10px;">  
@@ -347,7 +347,7 @@ Flashbots 还为我们带来的另一个巧妙功能是被称为捆绑交易。
 
 ## 🤝 第五代 MEV：私密订单流战争
 
-阅读有关区块构建者的内容会让您认为，对于构建者来说，以下几点非常重要：
+阅读有关区块构建者的内容会让你认为，对于构建者来说，以下几点非常重要：
 
 -   **建立一个庞大的社区**，以获取更多用于区块构建的捆绑数据，
 -   **了解强大的 MEV 搜索者**，使其捆绑数据更有价值。
@@ -372,38 +372,38 @@ Flashbots 还为我们带来的另一个巧妙功能是被称为捆绑交易。
 2.  **MEVBlocker**（CoW DAO）
 3.  **BackRunMe**（bloXroute）
 
-## **Intent-based swaps**
+## **基于意图的交换**
 
-Another effective method for eliminating MEV is to establish an open marketplace for matching orders. These orders, which come with objectives such as:
+另一种消除 MEV 的有效方法是建立一个匹配订单的开放市场。这些带有如下目标的订单：
 
--   “I want to buy token A with x amount of WETH,”
--   “I want to sell token B and get y amount of ETH,”
+-   “我想用 x 个 WETH 购买代币 A，”
+-   “我想出售代币 B 并获得 y 个 ETH，”
 
-are referred to as **‘intents’** as they represent the users’ intentions.
+被称为 **‘意图’**，因为它们代表了用户的意图。
 
-This concept is akin to limit orders on centralized exchanges (CEX), but with a slight difference — there is competition among searchers or **‘solvers’** to fulfill the intents in the most optimal way possible. The individual who accomplishes this task most effectively will execute the users’ orders.
+这个概念类似于中心化交易所（CEX）上的限价订单，但有一个小小的不同 —— 搜索者或 **‘求解器’** 之间存在着竞争，以尽可能最优的方式来满足意图。最有效地完成这项任务的个人将执行用户的订单。
 
-Below are some popular intent-based swaps that offer MEV protection by utilizing private order flows:
+以下是一些利用私密订单流程提供 MEV 保护的流行基于意图的交换：
 
 1.  **CoW Swap**
 2.  **Uniswap X**
-3.  **Limit order protocols** _(some people won’t consider limit order protocols as intent-based swaps, but I don’t know, they all seem alike to me)_
+3.  **限价订单协议** _(有些人可能不会将限价订单协议视为基于意图的交换，但我不知道，它们对我来说都很相似)_
 
-**Feeling dizzy? Overwhelmed by the amount of information to study?** Don’t worry, because you’re not alone. We’ll delve deeper into semi-private services and intent-based swaps in later articles because they’re quite interesting. But for now, just know that there’s a whole community of product builders working towards achieving the holy trinity of MEV:
+**感到眩晕吗？对需要学习的信息感到不知所措吗？** 别担心，因为你不是一个人。我们将在后续文章中更深入地探讨半私密服务和基于意图的交换，因为它们非常有趣。但现在，只需知道有一个由产品构建者组成的社区正在努力实现 MEV 的圣三位一体：
 
 <div align="center">
   <img src="./1_fDni3z4laNg3RpQxoS1WIQ.webp" alt="图片描述">
 </div>
 
-A world where everyone wins: **users, searchers, builders.**
+一个每个人都赢得的世界：**用户、搜索者、构建者。**
 
-**Merry Christmas everyone! 🎄**
+**大家圣诞快乐！🎄**
 
-I’ve been away for a couple of months, working on a product I really love with inspiring people, and I was able to learn more about MEV in the process.
+我已经离开了几个月，与一些令人振奋的人一起努力开发我非常喜爱的产品，我在这个过程中学到了更多关于 MEV 的知识。
 
-I hope to keep creating quality content so that we can all learn a thing or two about MEV and truly have fun together.
+我希望继续创作高质量的内容，让我们所有人都能学到一些关于 MEV 的知识，并真正开心起来。
 
-_Feel free to contact me through Twitter, or X… for anything:_
+_如果有任何问题，请随时通过 Twitter 或 X… 与我联系：_
 
 [https://twitter.com/solidquant][11] 🙏
 
