@@ -1,12 +1,12 @@
 ---
-title: 我不在乎是否会被夹在中间，更大的事情即将发生在 MEV 中。
+title: 我不在乎是否会被夹在中间，更大的事情即将发生在 MEV 中
 authorURL: ""
 originalURL: https://medium.com/@solidquant/i-dont-care-if-i-get-sandwiched-bigger-things-are-coming-to-mev-d1dca7dedf30
 translator: ""
 reviewer: ""
 ---
 
-# 我不在乎是否会被夹在中间，更大的事情即将发生在 MEV 中。
+# 我不在乎是否会被夹在中间，更大的事情即将发生在 MEV 中
 
 ## MEV 的内部运作和行业如何转变
 
