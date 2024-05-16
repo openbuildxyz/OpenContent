@@ -2,45 +2,45 @@
 title: Announcing the Ethereum Protocol Fellowship Cohort 5
 authorURL: ""
 originalURL: https://blog.ethereum.org/2024/05/13/epf-5-announcement
-translator: ""
+translator: "Ethan3"
 reviewer: ""
 ---
 
 > **TL;DR:**
-> 
-> -   Review the [program details for EPF5][1] 🔎
-> -   [Applications][2] for EPF5 are open until May 26 📝
-> -   A [town hall][3] will be held for an overview and questions on May 21 at 4PM UTC. 🎙️
+>
+> - Review the [program details for EPF5][1] 🔎
+> - [Applications][2] for EPF5 are open until May 26 📝
+> - A [town hall][3] will be held for an overview and questions on May 21 at 4PM UTC. 🎙️
 
 <!-- more -->
 
-We are excited to announce that the applications are now open for the fifth cohort of the Ethereum Protocol Fellowship (EPF5).
+我们很高兴地宣布，第五期以太坊协议奖学金 (EPF5) 现已开放申请。
 
-The EPF provides a pathway for aspiring protocol contributors to make meaningful contributions to Ethereum. In each cohort, a diverse group is assembled to work toward [advancing Ethereum's technology][4] during the fellowship. This includes everything from the development of client implementations, testing and specifications, and participating in the latest core protocol research.
+EPF 为有志于为协议做出贡献的人提供了一条有意义的贡献路径。在每一期中，我们会召集一个多样化的小组，在奖学金期间共同努力[推进以太坊技术][4]。这包括客户端实现的开发、测试和规范的制定，以及参与最新的核心协议研究。
 
-The program provides fellows with a unique opportunity to collaborate with other talented individuals, to engage with current Ethereum core developers and fellowship peers, and to make a significant impact on the Ethereum ecosystem.
+该项目为学员提供了一个独特的机会，与其他才华横溢的人合作，与当前的以太坊核心开发人员和奖学金同伴交流，并对以太坊生态系统产生重大影响。
 
-The EPF is a permissionless program. Anyone is welcome to participate with the same access and support offered to the selected fellows. A portion of the stipend budget is allocated to rewarding active permissionless participants.
+EPF 是一个无许可的项目。任何人都可以参与，并享有与选定的学员相同的访问权限和支持。部分津贴预算将分配给活跃的无许可参与者。
 
-**Details**
+**详情**
 
--   Applications accepted through May 26, 2024 - [APPLY HERE][5]
--   The fifth cohort runs from June through November 2024, with two in-person events at [EthCC][6] in Brussels and [Devcon][7] in Southeast Asia
--   Participants will have access to mentors from the core development community
--   Select participants will be provided with a monthly stipend to allow them to focus on the program
--   Review all the program details in the [EPF5 repo][8]
+- 申请截止日期为 2024 年 5 月 26 日 - [在此申请][5]
+- 第五期将于 2024 年 6 月至 11 月进行，包括在布鲁塞尔的 [EthCC][6] 和东南亚的 [Devcon][7] 举办的两次线下活动
+- 参与者将有机会与核心开发社区的导师交流
+- 部分参与者将获得每月津贴，以便他们专注于该项目
+- 在 [EPF5 仓库][8] 中查看所有项目详情
 
-**What's new in EPF5?**
+**EPF5 有什么新变化？**
 
--   Extended timeline from four to five months
--   Two in-person events (EthCC and Devcon)
--   New resources from EPF study group and epf.wiki
+- 时间延长至五个月
+- 两次线下活动（EthCC 和 Devcon）
+- 来自 EPF 学习小组和 epf.wiki 的新资源
 
-We continue to host some truly outstanding fellows who have made [significant contributions][9] to Ethereum, and we're thrilled to see what the fifth cohort will accomplish. To understand exactly what kind of projects have been worked on and to find an inspiration for your own, explore past fellows' work from [previous][10] [cohorts][11].
+我们继续接待了一些真正出色的学员，他们为以太坊做出了[重大贡献][9]，我们很高兴看到第五期学员将取得什么成就。要了解过去的学员从事了哪些项目，并为自己的项目找到灵感，请浏览[以前的][10][几期][11]。
 
-Applications are now open and will remain so until May 26, 2024. For more information, please review the [program details][12] in the GitHub repository. On May 21 at 4:00PM UTC, the EPF team will hold a [town hall][13] to discuss the program and answer any questions.
+申请现已开放，并将持续到 2024 年 5 月 26 日。更多信息，请查看 GitHub 仓库中的[项目详情][12]。EPF 团队将于 5 月 21 日 UTC 时间下午 4 点举行[市政厅会议][13]，讨论项目并回答任何问题。
 
-Whether you're a seasoned developer in the blockchain space, a promising computer science student, or a researcher with an interest in cryptography and economics, we encourage you to apply!
+无论你是区块链领域的经验丰富的开发人员、前途无量的计算机科学学生，还是对密码学和经济学感兴趣的研究人员，我们都鼓励你申请！
 
 [1]: javascript:void(0)
 [2]: https://forms.gle/DQbf13jD7igrXdnD9
