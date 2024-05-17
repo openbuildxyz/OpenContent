@@ -1,5 +1,5 @@
 ---
-title: A Complete Beginner's Guide to Web 3.0
+title: Web 3.0入门指南
 authorURL: Suhail Kakar
 originalURL: https://blog.suhailkakar.com/the-ultimate-guide-to-web-3#heading-web-10
 translator: "coco723"
